@@ -1,0 +1,55 @@
+{
+	"name": "jump-to-hint",
+	"displayName": "Jump to Hint",
+	"description": "Hit a key to show hints and jump to it.",
+	"version": "0.0.1",
+	"publisher": "shuworks",
+	"author": "Shuzo Iwasaki <shu.works.7@gmail.com>",
+	"license": "MIT",
+	"categories": [
+		"Other"
+	],
+	"keywords": [
+		"jump",
+		"jumpy",
+		"AceJump",
+		"EasyMotion",
+		"keybindings"
+	],
+	"engines": {
+		"vscode": "^1.46.0"
+	},
+	"activationEvents": [
+		"onCommand:jump-to-hint.helloWorld"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "jump-to-hint.helloWorld",
+				"title": "Hello World"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"lint": "eslint src --ext ts",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.46.0",
+		"@types/glob": "^7.1.1",
+		"@types/mocha": "^7.0.2",
+		"@types/node": "^13.11.0",
+		"eslint": "^6.8.0",
+		"@typescript-eslint/parser": "^2.30.0",
+		"@typescript-eslint/eslint-plugin": "^2.30.0",
+		"glob": "^7.1.6",
+		"mocha": "^7.1.2",
+		"typescript": "^3.8.3",
+		"vscode-test": "^1.3.0"
+	}
+}
