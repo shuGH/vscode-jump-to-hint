@@ -15,7 +15,7 @@
     "keywords": [
         "jump",
         "jumpy",
-        "AceJump",
+        "AceJumper",
         "EasyMotion",
         "keybindings"
     ],
@@ -49,16 +49,26 @@
         ],
         "keybindings": [
             {
-                "command": "jumpToHint.jumpByWord",
                 "key": "ctrl+alt+j w",
                 "mac": "cmd+alt+j w",
+                "command": "jumpToHint.jumpByWord",
                 "when": "editorTextFocus"
             },
             {
-                "command": "jumpToHint.jumpByLine",
                 "key": "ctrl+alt+j l",
                 "mac": "cmd+alt+j l",
+                "command": "jumpToHint.jumpByLine",
                 "when": "editorTextFocus"
+            },
+            {
+                "key": "backspace",
+                "command": "jumpToHint.undo",
+                "when": "editorTextFocus && jumpToHint.enabled"
+            },
+            {
+                "key": "escape",
+                "command": "jumpToHint.cancel",
+                "when": "editorTextFocus && jumpToHint.enabled"
             }
         ],
         "configuration": {

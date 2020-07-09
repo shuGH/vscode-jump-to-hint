@@ -1,6 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/windows,macos,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,macos,visualstudiocode
 
+MEMO.md
+
 ### VisualStudioCode ###
 # Extention project
 out

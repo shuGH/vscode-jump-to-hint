@@ -10,8 +10,15 @@ export enum HintLengthType {
     Variable
 };
 
+// 動作ステート
+export enum ExtensionState {
+    NotActive,
+    ActiveWordHint,
+    ActiveLineHint
+};
+
 // 設定型
-export interface UserSetting {
+export type UserSetting = {
     common: {
         wordRegExp: RegExp,
         lineRegExp: RegExp,
@@ -29,4 +36,9 @@ export interface UserSetting {
         fontColor: string,
         backgroundColor: string
     };
+}
+
+// ステータス
+export type ExtensionStatus = {
+    state: ExtensionState
 }

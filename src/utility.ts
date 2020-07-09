@@ -8,12 +8,27 @@ import * as _ from './common';
 const CONFIG_TITLE: string = 'jumpToHint';
 
 // 設定を読み込み
-export function loadUserSetting(setting: _.UserSetting): boolean {
+export function getUserSetting(): _.UserSetting {
+    let setting: _.UserSetting = {
+        common: {
+            wordRegExp: new RegExp(''),
+            lineRegExp: new RegExp(''),
+            hintChars: []
+        },
+        type: {
+            hintLengthType: _.HintLengthType.Variable,
+            fixedHintLength: 2,
+        },
+        ui: {
+            fontFamily: '',
+            fontSize: 16,
+            fontColor: '',
+            backgroundColor: ''
+        }
+    };
+
     const editorConfig = vscode.workspace.getConfiguration('editor');
     const extensionConfig = vscode.workspace.getConfiguration(CONFIG_TITLE);
-
-    console.log(extensionConfig.get('common.hintCharacters', ''))
-    console.log(extensionConfig.get('common.hintCharacters', '').split(""))
 
     setting.common = {
         wordRegExp: new RegExp(extensionConfig.get('common.wordRegExp', '\\w{2,}'), 'g'),
@@ -35,6 +50,10 @@ export function loadUserSetting(setting: _.UserSetting): boolean {
         backgroundColor: extensionConfig.get('ui.backgroundColor', 'white')
     }
 
-    return true;
+    return setting;
 }
 
+// 独自Contextの設定
+export function setContext(value: boolean) {
+    vscode.commands.executeCommand('setContext', 'jumpToHint.enabled', value);
+}
