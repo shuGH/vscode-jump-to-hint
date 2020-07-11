@@ -20,11 +20,11 @@ function updatePosition(textEditor: vscode.TextEditor, edit: vscode.TextEditorEd
     if (!regExp) return false;
 
     let range = getTargetRange(textEditor);
-    let positons = getHintPositions(textEditor, regExp, range);
+    let positonList = getHintPositionList(textEditor, regExp, range);
 
     // 更新（初期化）
     status.hintList = [];
-    positons.forEach((p, i) => {
+    positonList.forEach((p, i) => {
         status.hintList.push({
             pos: p,
             code: ''
@@ -49,11 +49,11 @@ function getTargetRange(textEditor: vscode.TextEditor): vscode.Range {
 }
 
 // ヒント位置を返す
-function getHintPositions(textEditor: vscode.TextEditor, regExp: RegExp, range: vscode.Range): vscode.Position[] {
+function getHintPositionList(textEditor: vscode.TextEditor, regExp: RegExp, range: vscode.Range): vscode.Position[] {
     if (!regExp) return [];
     if (!range) return [];
 
-    let positions: vscode.Position[] = [];
+    let positonList: vscode.Position[] = [];
 
     // 範囲内の行を走査
     for (let i = range.start.line; i <= range.end.line; i++) {
@@ -62,11 +62,11 @@ function getHintPositions(textEditor: vscode.TextEditor, regExp: RegExp, range: 
 
         // exec()は最後のマッチ位置を保持しながら検索する
         while (!!(exec = regExp.exec(line.text))) {
-            positions.push(
+            positonList.push(
                 new vscode.Position(i, exec.index)
             );
         }
     }
 
-    return positions;
+    return positonList;
 }

@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as _ from './common';
 import * as util from './utility';
 import * as pos from './position';
-import * as deco from './decoration';
+import * as code from './code';
 import * as nav from './navigation';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -81,6 +81,7 @@ function jumpByWord(
 {
 	util.updateState(status, _.ExtensionState.ActiveWordHint);
 	pos.updatePositionByWord(textEditor, edit, status, setting);
+	code.updateCode(textEditor, edit, status, setting);
 	console.log(status);
 
 	vscode.window.showInformationMessage('Hello World from jump-to-hint!');
@@ -92,6 +93,7 @@ function jumpByLine(
 {
 	util.updateState(status, _.ExtensionState.ActiveLineHint);
 	pos.updatePositionByLine(textEditor, edit, status, setting);
+	code.updateCode(textEditor, edit, status, setting);
 	console.log(status);
 
 	vscode.window.showInformationMessage('Hello World from jump-to-hint!');
@@ -108,6 +110,8 @@ function undo(
 	textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, status: _.ExtensionStatus)
 {
 	console.log('undo');
+	// @TODO: 入力済みがなければキャンセル
+	if (0) cancel(textEditor, edit, status);
 }
 
 function cancel(

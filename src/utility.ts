@@ -13,7 +13,7 @@ export function getUserSetting(): _.UserSetting {
         common: {
             wordRegExp: new RegExp(''),
             lineRegExp: new RegExp(''),
-            hintChars: []
+            hintCharList: []
         },
         type: {
             hintLengthType: _.HintLengthType.Variable,
@@ -33,7 +33,7 @@ export function getUserSetting(): _.UserSetting {
     setting.common = {
         wordRegExp: new RegExp(extensionConfig.get('common.wordRegExp', '\\w{2,}'), 'g'),
         lineRegExp: new RegExp(extensionConfig.get('common.lineRegExp', '^\\s*$'), 'g'),
-        hintChars: extensionConfig.get('common.hintCharacters', '')
+        hintCharList: extensionConfig.get('common.hintCharacters', '')
             .split("")
             .filter(function (e, i, self) { return self.indexOf(e) === i; })
     }

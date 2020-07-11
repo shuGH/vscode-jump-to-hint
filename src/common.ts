@@ -22,7 +22,7 @@ export type UserSetting = {
     common: {
         wordRegExp: RegExp,
         lineRegExp: RegExp,
-        hintChars: string[]
+        hintCharList: string[]
     };
 
     type: {
