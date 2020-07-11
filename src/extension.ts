@@ -7,45 +7,47 @@ import * as nav from './navigation';
 
 export function activate(context: vscode.ExtensionContext) {
 	let status: _.ExtensionStatus = {
-		state: _.ExtensionState.NotActive
+		state: _.ExtensionState.NotActive,
+		hintList: []
 	};
 
 	let wordCommandDisposable = vscode.commands.registerTextEditorCommand(
 		'jumpToHint.jumpByWord',
 		(textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
+			console.log('jump by word')
 			const setting = util.getUserSetting();
-			jumpByWord(textEditor, edit, setting, status);
+			jumpByWord(textEditor, edit, status, setting);
 		}
 	);
 
 	let lineCommandDisposable = vscode.commands.registerTextEditorCommand(
 		'jumpToHint.jumpByLine',
 		(textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
+			console.log('jump by line')
 			const setting = util.getUserSetting();
-			jumpByLine(textEditor, edit, setting, status);
+			jumpByLine(textEditor, edit, status, setting);
 		}
 	);
 
 	let undoCommandDisposable = vscode.commands.registerTextEditorCommand(
 		'jumpToHint.undo',
 		(textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
-			const setting = util.getUserSetting();
-			undo(textEditor, edit, setting, status);
+			undo(textEditor, edit, status);
 		}
 	);
 
 	let cancelCommandDisposable = vscode.commands.registerTextEditorCommand(
 		'jumpToHint.cancel',
 		(textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
-			const setting = util.getUserSetting();
-			cancel(textEditor, edit, setting, status);
+			cancel(textEditor, edit, status);
 		}
 	);
 
 	// タイプイベント
-	let typeCommandDisposable = vscode.commands.registerTextEditorCommand(
+	// @TODO: 他の拡張も登録していたら定義済みというエラーが出る、AceJumperではその場合はInputBoxを表示させているようだ、何かしら対策が必要
+	let typeCommandDisposable = vscode.commands.registerCommand(
 		'type',
-		(textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, event: { text: string }) => {
+		(event: { text: string }) => {
 			switch (status.state) {
 				case _.ExtensionState.NotActive:
 					// そのままVsCodeに流す
@@ -53,7 +55,7 @@ export function activate(context: vscode.ExtensionContext) {
 					break;
 				default:
 					const setting = util.getUserSetting();
-					typeHintCharacter(textEditor, edit, setting, status, event.text);
+					typeHintCharacter(status, setting, event.text);
 					break;
 			}
 		}
@@ -66,36 +68,51 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(wordCommandDisposable);
 	context.subscriptions.push(lineCommandDisposable);
+	context.subscriptions.push(undoCommandDisposable);
 	context.subscriptions.push(cancelCommandDisposable);
 	context.subscriptions.push(typeCommandDisposable);
 }
 
 export function deactivate() { }
 
-function jumpByWord(textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, setting: _.UserSetting, status: _.ExtensionStatus) {
-	updateState(status, _.ExtensionState.ActiveWordHint);
+function jumpByWord(
+	textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, status: _.ExtensionStatus,
+	setting: _.UserSetting)
+{
+	util.updateState(status, _.ExtensionState.ActiveWordHint);
+	pos.updatePositionByWord(textEditor, edit, status, setting);
+	console.log(status);
+
 	vscode.window.showInformationMessage('Hello World from jump-to-hint!');
 }
 
-function jumpByLine(textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, setting: _.UserSetting, status: _.ExtensionStatus) {
-	updateState(status, _.ExtensionState.ActiveLineHint);
+function jumpByLine(
+	textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, status: _.ExtensionStatus,
+	setting: _.UserSetting)
+{
+	util.updateState(status, _.ExtensionState.ActiveLineHint);
+	pos.updatePositionByLine(textEditor, edit, status, setting);
+	console.log(status);
+
 	vscode.window.showInformationMessage('Hello World from jump-to-hint!');
 }
 
-function typeHintCharacter(textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, setting: _.UserSetting, status: _.ExtensionStatus, text: string) {
+function typeHintCharacter(
+	status: _.ExtensionStatus,
+	setting: _.UserSetting, text: string)
+{
 	console.log(text);
 }
 
-function undo(textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, setting: _.UserSetting, status: _.ExtensionStatus) {
+function undo(
+	textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, status: _.ExtensionStatus)
+{
 	console.log('undo');
 }
 
-function cancel(textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, setting: _.UserSetting, status: _.ExtensionStatus) {
+function cancel(
+	textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, status: _.ExtensionStatus)
+{
 	console.log('cancel');
-	updateState(status, _.ExtensionState.NotActive);
-}
-
-function updateState(status: _.ExtensionStatus, state: _.ExtensionState) {
-	status.state = state;
-	util.setContext(state == _.ExtensionState.NotActive ? false : true);
+	util.updateState(status, _.ExtensionState.NotActive);
 }

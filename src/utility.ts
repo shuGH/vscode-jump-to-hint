@@ -7,7 +7,7 @@ import * as _ from './common';
 
 const CONFIG_TITLE: string = 'jumpToHint';
 
-// 設定を読み込み
+// 設定の読み込み
 export function getUserSetting(): _.UserSetting {
     let setting: _.UserSetting = {
         common: {
@@ -53,7 +53,10 @@ export function getUserSetting(): _.UserSetting {
     return setting;
 }
 
-// 独自Contextの設定
-export function setContext(value: boolean) {
-    vscode.commands.executeCommand('setContext', 'jumpToHint.enabled', value);
+// ステートの更新
+export function updateState(status: _.ExtensionStatus, state: _.ExtensionState) {
+    status.state = state;
+    // 独自Contextの設定
+    let f = (state == _.ExtensionState.NotActive) ? false : true;
+    vscode.commands.executeCommand('setContext', 'jumpToHint.enabled', f);
 }

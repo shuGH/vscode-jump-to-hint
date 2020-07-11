@@ -38,7 +38,16 @@ export type UserSetting = {
     };
 }
 
+// ヒント
+export type Hint = {
+    // 位置
+    pos: vscode.Position,
+    // ヒント文字
+    code: string
+}
+
 // ステータス
 export type ExtensionStatus = {
-    state: ExtensionState
+    state: ExtensionState,
+    hintList: Hint[]
 }
