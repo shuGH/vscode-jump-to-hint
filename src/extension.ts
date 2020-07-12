@@ -3,13 +3,11 @@ import * as _ from './common';
 import * as util from './utility';
 import * as pos from './position';
 import * as code from './code';
+import * as deco from './decoration';
 import * as nav from './navigation';
 
 export function activate(context: vscode.ExtensionContext) {
-	let status: _.ExtensionStatus = {
-		state: _.ExtensionState.NotActive,
-		hintList: []
-	};
+	let status = new _.ExtensionStatus();
 
 	let wordCommandDisposable = vscode.commands.registerTextEditorCommand(
 		'jumpToHint.jumpByWord',
@@ -39,15 +37,16 @@ export function activate(context: vscode.ExtensionContext) {
 	let cancelCommandDisposable = vscode.commands.registerTextEditorCommand(
 		'jumpToHint.cancel',
 		(textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
-			cancel(textEditor, edit, status);
+			exit(textEditor, edit, status);
 		}
 	);
 
 	// タイプイベント
 	// @TODO: 他の拡張も登録していたら定義済みというエラーが出る、AceJumperではその場合はInputBoxを表示させているようだ、何かしら対策が必要
-	let typeCommandDisposable = vscode.commands.registerCommand(
+	// @TODO: 行儀として有効なときにコマンド登録して、Exit時に破棄しよう
+	let typeCommandDisposable = vscode.commands.registerTextEditorCommand(
 		'type',
-		(event: { text: string }) => {
+		(textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, event: { text: string }) => {
 			switch (status.state) {
 				case _.ExtensionState.NotActive:
 					// そのままVsCodeに流す
@@ -55,7 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
 					break;
 				default:
 					const setting = util.getUserSetting();
-					typeHintCharacter(status, setting, event.text);
+					typeHintCharacter(textEditor, edit, status, setting, event.text);
 					break;
 			}
 		}
@@ -71,19 +70,26 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(undoCommandDisposable);
 	context.subscriptions.push(cancelCommandDisposable);
 	context.subscriptions.push(typeCommandDisposable);
+	context.subscriptions.push(status);
 }
 
-export function deactivate() { }
+export function deactivate() {}
 
 function jumpByWord(
 	textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, status: _.ExtensionStatus,
 	setting: _.UserSetting)
 {
-	util.updateState(status, _.ExtensionState.ActiveWordHint);
-	pos.updatePositionByWord(textEditor, edit, status, setting);
-	code.updateCode(textEditor, edit, status, setting);
-	console.log(status);
+	status.initialize();
+	util.updateState(status, _.ExtensionState.ActiveLineHint);
 
+	status.positionList = pos.getPositionListByWord(setting, textEditor);
+	status.codeList = code.getCodeList(setting, status.positionList);
+	status.foregroundDecoration = deco.getForegroundDecoration(setting);
+	status.backgroundDecoration = deco.getBackgroundDecoration(setting);
+
+	deco.applyDecoration(status, textEditor);
+
+	console.log(status);
 	vscode.window.showInformationMessage('Hello World from jump-to-hint!');
 }
 
@@ -91,32 +97,48 @@ function jumpByLine(
 	textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, status: _.ExtensionStatus,
 	setting: _.UserSetting)
 {
+	status.initialize();
 	util.updateState(status, _.ExtensionState.ActiveLineHint);
-	pos.updatePositionByLine(textEditor, edit, status, setting);
-	code.updateCode(textEditor, edit, status, setting);
-	console.log(status);
 
+	status.positionList = pos.getPositionListByLine(setting, textEditor);
+	status.codeList = code.getCodeList(setting, status.positionList);
+	status.foregroundDecoration = deco.getForegroundDecoration(setting);
+	status.backgroundDecoration = deco.getBackgroundDecoration(setting);
+
+	deco.applyDecoration(status, textEditor);
+
+	console.log(status);
 	vscode.window.showInformationMessage('Hello World from jump-to-hint!');
 }
 
 function typeHintCharacter(
-	status: _.ExtensionStatus,
+	textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, status: _.ExtensionStatus,
 	setting: _.UserSetting, text: string)
 {
+	if (status.state == _.ExtensionState.NotActive) return;
 	console.log(text);
 }
 
 function undo(
 	textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, status: _.ExtensionStatus)
 {
-	console.log('undo');
-	// @TODO: 入力済みがなければキャンセル
-	if (0) cancel(textEditor, edit, status);
+	if (false) {
+		console.log('undo');
+	}
+	else {
+		exit(textEditor, edit, status);
+	}
 }
 
-function cancel(
+function exit(
 	textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, status: _.ExtensionStatus)
 {
-	console.log('cancel');
+	console.log('exit');
+
+	status.positionList = [];
+	status.codeList = [];
+	deco.applyDecoration(status, textEditor);
+
 	util.updateState(status, _.ExtensionState.NotActive);
+	status.finalize();
 }

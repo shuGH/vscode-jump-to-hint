@@ -6,32 +6,35 @@ import * as vscode from 'vscode';
 import * as _ from './common';
 
 // ヒント位置を検索する
-export function updatePositionByWord(textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, status: _.ExtensionStatus, setting: _.UserSetting): boolean {
-    return updatePosition(textEditor, edit, status, setting.common.wordRegExp);
+export function getPositionListByWord(setting: _.UserSetting, textEditor: vscode.TextEditor): vscode.Position[] {
+    return getPositionList(setting.common.wordRegExp, textEditor);
 }
 
 // ヒント位置を検索する
-export function updatePositionByLine(textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, status: _.ExtensionStatus, setting: _.UserSetting): boolean {
-    return updatePosition(textEditor, edit, status, setting.common.lineRegExp);
+export function getPositionListByLine(setting: _.UserSetting, textEditor: vscode.TextEditor): vscode.Position[] {
+    return getPositionList(setting.common.lineRegExp, textEditor);
 }
 
 // ヒント位置を検索する
-function updatePosition(textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit, status: _.ExtensionStatus, regExp: RegExp): boolean {
-    if (!regExp) return false;
+function getPositionList(regExp: RegExp, textEditor: vscode.TextEditor): vscode.Position[] {
+    if (!regExp) return [];
 
+    // 範囲を取得
     let range = getTargetRange(textEditor);
-    let positonList = getHintPositionList(textEditor, regExp, range);
+    // 範囲内の行を走査
+    let list: vscode.Position[] = [];
+    for (let i = range.start.line; i <= range.end.line; i++) {
+        let line = textEditor.document.lineAt(i);
+        let exec: RegExpExecArray | null;
 
-    // 更新（初期化）
-    status.hintList = [];
-    positonList.forEach((p, i) => {
-        status.hintList.push({
-            pos: p,
-            code: ''
-        })
-    });
-
-    return true;
+        // exec()は最後のマッチ位置を保持しながら検索する
+        while (!!(exec = regExp.exec(line.text))) {
+            list.push(
+                new vscode.Position(i, exec.index)
+            );
+        }
+    }
+    return list;
 }
 
 // ヒントの表示範囲を返す
@@ -46,27 +49,4 @@ function getTargetRange(textEditor: vscode.TextEditor): vscode.Range {
         new vscode.Position(startLine, range[0].start.character),
         new vscode.Position(endLine, range[0].end.character),
     );
-}
-
-// ヒント位置を返す
-function getHintPositionList(textEditor: vscode.TextEditor, regExp: RegExp, range: vscode.Range): vscode.Position[] {
-    if (!regExp) return [];
-    if (!range) return [];
-
-    let positonList: vscode.Position[] = [];
-
-    // 範囲内の行を走査
-    for (let i = range.start.line; i <= range.end.line; i++) {
-        let line = textEditor.document.lineAt(i);
-        let exec: RegExpExecArray | null;
-
-        // exec()は最後のマッチ位置を保持しながら検索する
-        while (!!(exec = regExp.exec(line.text))) {
-            positonList.push(
-                new vscode.Position(i, exec.index)
-            );
-        }
-    }
-
-    return positonList;
 }

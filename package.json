@@ -90,6 +90,15 @@
                     "default": "abcdefghijklmnopqrstuvwxyz[];',./",
                     "description": "Characters used to generate hint"
                 },
+                "jumpToHint.common.inputCodeStyle": {
+                    "type": "string",
+                    "default": "InputBox",
+                    "description": " (Inline: , InputBox: (Recommend) Show inputbox)",
+                    "enum": [
+                        "Inline",
+                        "InputBox"
+                    ]
+                },
                 "jumpToHint.type.hintLengthType": {
                     "type": "string",
                     "default": "Variable",
