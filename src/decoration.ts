@@ -46,9 +46,9 @@ function getHintParamList(positionList: Position[], codeList: string[], inputCod
 export function getForegroundDecoration(setting: _.UserSetting): TextEditorDecorationType {
     return window.createTextEditorDecorationType({
         after: {
-            color: setting.ui.fontColor,
+            color: setting.theme.fontColor,
             width: '0',
-            fontWeight: '400',
+            fontWeight: 'normal'
         },
     });
 }
@@ -56,7 +56,7 @@ export function getForegroundDecoration(setting: _.UserSetting): TextEditorDecor
 // 装飾タイプを作成する
 export function getBackgroundDecoration(setting: _.UserSetting): TextEditorDecorationType {
     return window.createTextEditorDecorationType({
-        backgroundColor: setting.ui.backgroundColor,
+        backgroundColor: setting.theme.backgroundColor,
         opacity: '0',
         borderRadius: '2px',
         border: 'none'

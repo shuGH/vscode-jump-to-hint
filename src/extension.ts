@@ -18,20 +18,20 @@ export function activate(context: ExtensionContext) {
 	let wordCommandDisposable = commands.registerTextEditorCommand(
 		'jumpToHint.jumpByWord',
 		(textEditor: TextEditor, edit: TextEditorEdit) => {
-			console.log('jump by word')
 			const setting = util.getUserSetting();
 			jumpByWord(textEditor, edit, status, setting);
 			subscribeTypeEvent(textEditor, edit, status, setting);
+			console.log('JumpToHint: Show hints by word.', status);
 		}
 	);
 
 	let lineCommandDisposable = commands.registerTextEditorCommand(
 		'jumpToHint.jumpByLine',
 		(textEditor: TextEditor, edit: TextEditorEdit) => {
-			console.log('jump by line')
 			const setting = util.getUserSetting();
 			jumpByLine(textEditor, edit, status, setting);
 			subscribeTypeEvent(textEditor, edit, status, setting);
+			console.log('JumpToHint: Show hints by line.', status);
 		}
 	);
 
@@ -73,7 +73,6 @@ function subscribeTypeEvent(
 	textEditor: TextEditor, edit: TextEditorEdit, status: _.ExtensionStatus,
 	setting: _.UserSetting
 ) {
-	console.log(setting.common.inputStyle);
 	switch (setting.common.inputStyle) {
 		case _.InputStyle.TypeEvent:
 			// 他の拡張がtypeイベントを登録していたら定義済みというエラーが出る
@@ -146,9 +145,6 @@ function jumpByWord(
 	status.backgroundDecoration = deco.getBackgroundDecoration(setting);
 
 	deco.applyDecoration(status);
-
-	console.log(status);
-	window.showInformationMessage('Hello World from jump-to-hint!');
 }
 
 function jumpByLine(
@@ -165,31 +161,30 @@ function jumpByLine(
 	status.backgroundDecoration = deco.getBackgroundDecoration(setting);
 
 	deco.applyDecoration(status);
-
-	console.log(status);
-	window.showInformationMessage('Hello World from jump-to-hint!');
 }
 
 function typeHintCharacter(status: _.ExtensionStatus, text: string) {
 	if (status.state == _.ExtensionState.NotActive) return;
+	console.log('JumpToHint: Input code.', text);
 
 	status.inputCode = nav.getInputCode(status.inputCode, text);
 	tryNavigationOrApplyDecoration(status);
-	console.log(text);
 }
 
 function setHintCharacter(status: _.ExtensionStatus, text: string) {
 	if (status.state == _.ExtensionState.NotActive) return;
+	console.log('JumpToHint: Input code.', text);
 
 	status.inputCode = text;
 	tryNavigationOrApplyDecoration(status);
-	console.log(text);
 }
 
 function tryNavigationOrApplyDecoration(status: _.ExtensionStatus): boolean {
 	let navigable = nav.canNavigate(status.codeList, status.inputCode);
 
 	if (navigable) {
+		console.log('JumpToHint: Navigate to hint.', status.inputCode);
+
 		nav.applyNavigation(status);
 		exit(status);
 	}
@@ -202,6 +197,8 @@ function tryNavigationOrApplyDecoration(status: _.ExtensionStatus): boolean {
 
 function undo(status: _.ExtensionStatus) {
 	if (nav.canUndoInputCode(status.inputCode)) {
+		console.log('JumpToHint: Undo.');
+
 		status.inputCode = nav.getUndoneInputCode(status.inputCode);
 		deco.applyDecoration(status);
 	}
@@ -211,7 +208,7 @@ function undo(status: _.ExtensionStatus) {
 }
 
 function exit(status: _.ExtensionStatus) {
-	console.log('exit');
+	console.log('JumpToHint: Exit.');
 
 	status.positionList = [];
 	status.codeList = [];

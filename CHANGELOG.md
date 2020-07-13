@@ -1,9 +1,8 @@
 # Change Log
 
-All notable changes to the "jump-to-hint" extension will be documented in this file.
+All notable changes to the "Jump to Hint" extension will be documented in this file.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
-
-- Initial release
+## [1.0.0] - 2020-07-16
+### Added
+* 'Jump to Hint: by Word' command.
+* 'Jump to Hint: by Line' command.

@@ -23,9 +23,7 @@ export function getUserSetting(): _.UserSetting {
             hintLengthType: _.HintLengthType.Variable,
             fixedHintLength: 2,
         },
-        ui: {
-            fontFamily: '',
-            fontSize: 16,
+        theme: {
             fontColor: '',
             backgroundColor: ''
         }
@@ -48,11 +46,9 @@ export function getUserSetting(): _.UserSetting {
         fixedHintLength: Math.max(extensionConfig.get('type.fixedHintLength', 1), 1)
     }
 
-    setting.ui = {
-        fontFamily: extensionConfig.get('ui.fontFamily', editorConfig.get('fontFamily', '')),
-        fontSize: extensionConfig.get('ui.fontSize', editorConfig.get('fontSize', 16) - 1),
-        fontColor: extensionConfig.get('ui.fontColor', 'black'),
-        backgroundColor: extensionConfig.get('ui.backgroundColor', 'white')
+    setting.theme = {
+        fontColor: extensionConfig.get('theme.fontColor', 'black'),
+        backgroundColor: extensionConfig.get('theme.backgroundColor', 'white')
     }
 
     return setting;

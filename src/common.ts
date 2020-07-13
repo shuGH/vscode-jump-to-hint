@@ -43,9 +43,7 @@ export type UserSetting = {
         fixedHintLength: number,
     };
 
-    ui: {
-        fontFamily: string,
-        fontSize: number,
+    theme: {
         fontColor: string,
         backgroundColor: string
     };
