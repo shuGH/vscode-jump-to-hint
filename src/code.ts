@@ -2,11 +2,13 @@
 
 // ヒント表示
 
-import * as vscode from 'vscode';
+import {
+    Position
+} from 'vscode';
 import * as _ from './common';
 
 // ヒント文字を作成する
-export function getCodeList(setting: _.UserSetting, positionList: vscode.Position[]): string[] {
+export function getCodeList(setting: _.UserSetting, positionList: Position[]): string[] {
     let count = positionList.length;
 
     // ヒントを作成する

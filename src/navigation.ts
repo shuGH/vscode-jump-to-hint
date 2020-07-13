@@ -2,7 +2,9 @@
 
 // 入力処理
 
-import * as vscode from 'vscode';
+import {
+    Selection
+} from 'vscode';
 import * as _ from './common';
 
 export function applyNavigation(status: _.ExtensionStatus): boolean {
@@ -15,7 +17,7 @@ export function applyNavigation(status: _.ExtensionStatus): boolean {
     if (!pos) return false;
 
     // フォーカス移動
-    const selection = new vscode.Selection(
+    const selection = new Selection(
         pos.line, pos.character, pos.line, pos.character,
     );
     status.targetEditor.selection = selection;

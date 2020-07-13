@@ -2,13 +2,24 @@
 
 // Enumや構造体
 
-import * as vscode from 'vscode';
-import { stat } from 'fs';
+import {
+    Disposable,
+    Position,
+    TextEditorDecorationType,
+    TextEditor,
+    InputBox
+} from 'vscode';
 
 // ヒントタイプ
 export enum HintLengthType {
     Fixed,
     Variable
+};
+
+// 入力方式
+export enum InputStyle {
+    TypeEvent,
+    InputBox
 };
 
 // 動作ステート
@@ -23,7 +34,8 @@ export type UserSetting = {
     common: {
         wordRegExp: RegExp,
         lineRegExp: RegExp,
-        hintCharList: string[]
+        hintCharList: string[],
+        inputStyle: InputStyle
     };
 
     type: {
@@ -41,20 +53,21 @@ export type UserSetting = {
 
 // 位置とコード
 export type HintParam = {
-    pos: vscode.Position;
+    pos: Position;
     code: string;
 }
 
 // ステータス
-export class ExtensionStatus extends vscode.Disposable {
+export class ExtensionStatus extends Disposable {
     state: ExtensionState;
-    positionList: vscode.Position[];
+    positionList: Position[];
     codeList: string[];
     inputCode: string;
-    foregroundDecoration: vscode.TextEditorDecorationType | null;
-    backgroundDecoration: vscode.TextEditorDecorationType | null;
-    subscriptionList: vscode.Disposable[];
-    targetEditor: vscode.TextEditor | null;
+    foregroundDecoration: TextEditorDecorationType | null;
+    backgroundDecoration: TextEditorDecorationType | null;
+    targetEditor: TextEditor | null;
+    subscriptionList: Disposable[];
+    inputBox: InputBox | null;
 
     constructor() {
         super(() => { this.dispose(); });
@@ -65,8 +78,9 @@ export class ExtensionStatus extends vscode.Disposable {
         this.inputCode = '';
         this.foregroundDecoration = null;
         this.backgroundDecoration = null;
-        this.subscriptionList = [];
         this.targetEditor = null;
+        this.subscriptionList = [];
+        this.inputBox = null;
     };
 
     initialize() {
@@ -82,9 +96,12 @@ export class ExtensionStatus extends vscode.Disposable {
         this.foregroundDecoration = null;
         this.backgroundDecoration?.dispose();
         this.backgroundDecoration = null;
+        this.targetEditor = null;
+
         this.subscriptionList.forEach((s) => s.dispose());
         this.subscriptionList = [];
-        this.targetEditor = null;
+        this.inputBox?.dispose();
+        this.inputBox = null;
     };
 
     dispose() {

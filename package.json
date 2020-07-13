@@ -92,10 +92,10 @@
                 },
                 "jumpToHint.common.inputCodeStyle": {
                     "type": "string",
-                    "default": "InputBox",
-                    "description": " (Inline: , InputBox: (Recommend) Show inputbox)",
+                    "default": "TypeEvent",
+                    "description": " (TypeEvent: , InputBox: (Recommend) Show inputbox)",
                     "enum": [
-                        "Inline",
+                        "TypeEvent",
                         "InputBox"
                     ]
                 },

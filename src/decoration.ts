@@ -2,7 +2,13 @@
 
 // ヒント表示
 
-import * as vscode from 'vscode';
+import {
+    Position,
+    Range,
+    TextEditorDecorationType,
+    DecorationOptions,
+    window
+} from 'vscode';
 import * as _ from './common';
 
 // 装飾を適用する
@@ -21,7 +27,7 @@ export function applyDecoration(status: _.ExtensionStatus): boolean {
 }
 
 // 位置とコードを結合する
-function getHintParamList(positionList: vscode.Position[], codeList: string[], inputCode: string): _.HintParam[] {
+function getHintParamList(positionList: Position[], codeList: string[], inputCode: string): _.HintParam[] {
     let list: _.HintParam[] = positionList.map((p, i) => {
         if (!!codeList[i]) {
             return { pos: p, code: codeList[i] };
@@ -37,8 +43,8 @@ function getHintParamList(positionList: vscode.Position[], codeList: string[], i
 }
 
 // 装飾タイプを作成する
-export function getForegroundDecoration(setting: _.UserSetting): vscode.TextEditorDecorationType {
-    return vscode.window.createTextEditorDecorationType({
+export function getForegroundDecoration(setting: _.UserSetting): TextEditorDecorationType {
+    return window.createTextEditorDecorationType({
         after: {
             color: setting.ui.fontColor,
             width: '0',
@@ -48,19 +54,20 @@ export function getForegroundDecoration(setting: _.UserSetting): vscode.TextEdit
 }
 
 // 装飾タイプを作成する
-export function getBackgroundDecoration(setting: _.UserSetting): vscode.TextEditorDecorationType {
-    return vscode.window.createTextEditorDecorationType({
+export function getBackgroundDecoration(setting: _.UserSetting): TextEditorDecorationType {
+    return window.createTextEditorDecorationType({
         backgroundColor: setting.ui.backgroundColor,
         opacity: '0',
-        borderRadius: '2px'
+        borderRadius: '2px',
+        border: 'none'
     });
 }
 
 // 装飾オプションを作成する
-function getForegroundDecorationOptionList(list: _.HintParam[]): vscode.DecorationOptions[] {
+function getForegroundDecorationOptionList(list: _.HintParam[]): DecorationOptions[] {
     return list.map((param, i) => {
         return {
-            range: new vscode.Range(param.pos.line, param.pos.character, param.pos.line, param.pos.character),
+            range: new Range(param.pos.line, param.pos.character, param.pos.line, param.pos.character),
             renderOptions: {
                 after: {
                     contentText: param.code,
@@ -71,10 +78,10 @@ function getForegroundDecorationOptionList(list: _.HintParam[]): vscode.Decorati
 }
 
 // 装飾オプションを作成する
-function getBackgroundDecorationOptionList(list: _.HintParam[]): vscode.DecorationOptions[] {
+function getBackgroundDecorationOptionList(list: _.HintParam[]): DecorationOptions[] {
     return list.map((param, i) => {
         return {
-            range: new vscode.Range(param.pos.line, param.pos.character, param.pos.line, param.pos.character + param.code.length),
+            range: new Range(param.pos.line, param.pos.character, param.pos.line, param.pos.character + param.code.length),
         }
     });
 }
