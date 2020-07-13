@@ -60,4 +60,3 @@ export function updateState(status: _.ExtensionStatus, state: _.ExtensionState) 
     let f = (state == _.ExtensionState.NotActive) ? false : true;
     vscode.commands.executeCommand('setContext', 'jumpToHint.enabled', f);
 }
-

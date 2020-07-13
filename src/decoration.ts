@@ -6,14 +6,15 @@ import * as vscode from 'vscode';
 import * as _ from './common';
 
 // 装飾を適用する
-export function applyDecoration(status: _.ExtensionStatus, textEditor: vscode.TextEditor): boolean {
-    let list = getHintParamList(status.positionList, status.codeList, status.inputCode);
+export function applyDecoration(status: _.ExtensionStatus): boolean {
+    if (!status.targetEditor) { return false };
 
+    let list = getHintParamList(status.positionList, status.codeList, status.inputCode);
     if (status.foregroundDecoration) {
-        textEditor.setDecorations(status.foregroundDecoration, getForegroundDecorationOptionList(list));
+        status.targetEditor.setDecorations(status.foregroundDecoration, getForegroundDecorationOptionList(list));
     }
     if (status.backgroundDecoration) {
-        textEditor.setDecorations(status.backgroundDecoration, getBackgroundDecorationOptionList(list));
+        status.targetEditor.setDecorations(status.backgroundDecoration, getBackgroundDecorationOptionList(list));
     }
 
     return true;

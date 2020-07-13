@@ -53,6 +53,8 @@ export class ExtensionStatus extends vscode.Disposable {
     inputCode: string;
     foregroundDecoration: vscode.TextEditorDecorationType | null;
     backgroundDecoration: vscode.TextEditorDecorationType | null;
+    subscriptionList: vscode.Disposable[];
+    targetEditor: vscode.TextEditor | null;
 
     constructor() {
         super(() => { this.dispose(); });
@@ -63,6 +65,8 @@ export class ExtensionStatus extends vscode.Disposable {
         this.inputCode = '';
         this.foregroundDecoration = null;
         this.backgroundDecoration = null;
+        this.subscriptionList = [];
+        this.targetEditor = null;
     };
 
     initialize() {
@@ -78,6 +82,9 @@ export class ExtensionStatus extends vscode.Disposable {
         this.foregroundDecoration = null;
         this.backgroundDecoration?.dispose();
         this.backgroundDecoration = null;
+        this.subscriptionList.forEach((s) => s.dispose());
+        this.subscriptionList = [];
+        this.targetEditor = null;
     };
 
     dispose() {
