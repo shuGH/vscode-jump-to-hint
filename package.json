@@ -100,6 +100,15 @@
                         "InputBox"
                     ]
                 },
+                "jumpToHint.common.targetTextEditorType": {
+                    "type": "string",
+                    "default": "VisibleTextEditors",
+                    "description": "",
+                    "enum": [
+                        "ActiveTextEditor",
+                        "VisibleTextEditors"
+                    ]
+                },
                 "jumpToHint.type.hintLengthType": {
                     "type": "string",
                     "default": "Variable",

@@ -22,6 +22,12 @@ export enum InputStyle {
     InputBox
 };
 
+// 表示先
+export enum TargetTextEditorType {
+    ActiveTextEditor,
+    VisibleTextEditors
+};
+
 // 動作ステート
 export enum ExtensionState {
     NotActive,
@@ -35,7 +41,8 @@ export type UserSetting = {
         wordRegExp: RegExp,
         lineRegExp: RegExp,
         hintCharList: string[],
-        inputStyle: InputStyle
+        inputStyle: InputStyle,
+        targetType: TargetTextEditorType
     };
 
     type: {
@@ -58,12 +65,12 @@ export type HintParam = {
 // ステータス
 export class ExtensionStatus extends Disposable {
     state: ExtensionState;
-    positionList: Position[];
-    labelList: string[];
+    positionList: Position[][];
+    labelList: string[][];
     inputLabel: string;
-    foregroundDecoration: TextEditorDecorationType | null;
-    backgroundDecoration: TextEditorDecorationType | null;
-    targetEditor: TextEditor | null;
+    foregroundDecorationList: TextEditorDecorationType[];
+    backgroundDecorationList: TextEditorDecorationType[];
+    targetEditorList: TextEditor[];
     subscriptionList: Disposable[];
     inputBox: InputBox | null;
 
@@ -74,9 +81,9 @@ export class ExtensionStatus extends Disposable {
         this.positionList = [];
         this.labelList = [];
         this.inputLabel = '';
-        this.foregroundDecoration = null;
-        this.backgroundDecoration = null;
-        this.targetEditor = null;
+        this.foregroundDecorationList = [];
+        this.backgroundDecorationList = [];
+        this.targetEditorList = [];
         this.subscriptionList = [];
         this.inputBox = null;
     };
@@ -90,11 +97,13 @@ export class ExtensionStatus extends Disposable {
         this.positionList.length = 0;
         this.labelList.length = 0;
         this.inputLabel = '';
-        this.foregroundDecoration?.dispose();
-        this.foregroundDecoration = null;
-        this.backgroundDecoration?.dispose();
-        this.backgroundDecoration = null;
-        this.targetEditor = null;
+
+        this.foregroundDecorationList.forEach((d) => d.dispose());
+        this.foregroundDecorationList = [];
+        this.backgroundDecorationList.forEach((d) => d.dispose());
+        this.backgroundDecorationList = [];
+
+        this.targetEditorList.length = 0;
 
         this.subscriptionList.forEach((s) => s.dispose());
         this.subscriptionList = [];

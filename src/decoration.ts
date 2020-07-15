@@ -5,6 +5,7 @@
 import {
     Position,
     Range,
+    TextEditor,
     TextEditorDecorationType,
     DecorationOptions,
     window
@@ -13,15 +14,23 @@ import * as _ from './common';
 
 // 装飾を適用する
 export function applyDecoration(status: _.ExtensionStatus): boolean {
-    if (!status.targetEditor) { return false };
+    status.targetEditorList.forEach((editor, i) => {
+        let positionList = status.positionList[i];
+        let labelList = status.labelList[i];
+        let foreground = status.foregroundDecorationList[i];
+        let background = status.backgroundDecorationList[i];
+        let target = status.targetEditorList[i];
 
-    let list = getHintParamList(status.positionList, status.labelList, status.inputLabel);
-    if (status.foregroundDecoration) {
-        status.targetEditor.setDecorations(status.foregroundDecoration, getForegroundDecorationOptionList(list));
-    }
-    if (status.backgroundDecoration) {
-        status.targetEditor.setDecorations(status.backgroundDecoration, getBackgroundDecorationOptionList(list));
-    }
+        if (!!positionList && !!labelList && !!target) {
+            let list = getHintParamList(positionList, labelList, status.inputLabel);
+            if (foreground) {
+                target.setDecorations(foreground, getForegroundDecorationOptionList(list));
+            }
+            if (background) {
+                target.setDecorations(background, getBackgroundDecorationOptionList(list));
+            }
+        }
+    });
 
     return true;
 }
@@ -43,24 +52,32 @@ function getHintParamList(positionList: Position[], labelList: string[], inputLa
 }
 
 // 装飾タイプを作成する
-export function getForegroundDecoration(setting: _.UserSetting): TextEditorDecorationType {
-    return window.createTextEditorDecorationType({
-        after: {
-            color: setting.theme.fontColor,
-            width: '0',
-            fontWeight: 'normal'
-        },
+export function getForegroundDecorationList(setting: _.UserSetting, textEditorList: TextEditor[]): TextEditorDecorationType[] {
+    let list: TextEditorDecorationType[] = [];
+    textEditorList.forEach((editor) => {
+        list.push(window.createTextEditorDecorationType({
+            after: {
+                color: setting.theme.fontColor,
+                width: '0',
+                fontWeight: 'normal'
+            },
+        }));
     });
+    return list;
 }
 
 // 装飾タイプを作成する
-export function getBackgroundDecoration(setting: _.UserSetting): TextEditorDecorationType {
-    return window.createTextEditorDecorationType({
-        backgroundColor: setting.theme.backgroundColor,
-        opacity: '0',
-        borderRadius: '2px',
-        border: 'none'
+export function getBackgroundDecorationList(setting: _.UserSetting, textEditorList: TextEditor[]): TextEditorDecorationType[] {
+    let list: TextEditorDecorationType[] = [];
+    textEditorList.forEach((editor) => {
+        list.push(window.createTextEditorDecorationType({
+            backgroundColor: setting.theme.backgroundColor,
+            opacity: '0',
+            borderRadius: '2px',
+            border: 'none'
+        }));
     });
+    return list;
 }
 
 // 装飾オプションを作成する

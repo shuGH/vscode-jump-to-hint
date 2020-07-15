@@ -138,11 +138,11 @@ function jumpByWord(
 	status.initialize();
 	util.updateState(status, _.ExtensionState.ActiveLineHint);
 
-	status.targetEditor = textEditor;
-	status.positionList = pos.getPositionListByWord(setting, status.targetEditor);
+	status.targetEditorList = util.getTargetTextEditorList(setting);
+	status.positionList = pos.getPositionListByWord(setting, status.targetEditorList);
 	status.labelList = label.getLabelList(setting, status.positionList);
-	status.foregroundDecoration = deco.getForegroundDecoration(setting);
-	status.backgroundDecoration = deco.getBackgroundDecoration(setting);
+	status.foregroundDecorationList = deco.getForegroundDecorationList(setting, status.targetEditorList);
+	status.backgroundDecorationList = deco.getBackgroundDecorationList(setting, status.targetEditorList);
 
 	deco.applyDecoration(status);
 }
@@ -154,11 +154,11 @@ function jumpByLine(
 	status.initialize();
 	util.updateState(status, _.ExtensionState.ActiveLineHint);
 
-	status.targetEditor = textEditor;
-	status.positionList = pos.getPositionListByLine(setting, status.targetEditor);
+	status.targetEditorList = util.getTargetTextEditorList(setting);
+	status.positionList = pos.getPositionListByLine(setting, status.targetEditorList);
 	status.labelList = label.getLabelList(setting, status.positionList);
-	status.foregroundDecoration = deco.getForegroundDecoration(setting);
-	status.backgroundDecoration = deco.getBackgroundDecoration(setting);
+	status.foregroundDecorationList = deco.getForegroundDecorationList(setting, status.targetEditorList);
+	status.backgroundDecorationList = deco.getBackgroundDecorationList(setting, status.targetEditorList);
 
 	deco.applyDecoration(status);
 }
@@ -210,8 +210,7 @@ function undo(status: _.ExtensionStatus) {
 function exit(status: _.ExtensionStatus) {
 	console.log('JumpToHint: Exit.');
 
-	status.positionList = [];
-	status.labelList = [];
+	status.positionList = pos.getEmptyPositionList(status.targetEditorList);
 	deco.applyDecoration(status);
 
 	util.updateState(status, _.ExtensionState.NotActive);

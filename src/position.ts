@@ -9,35 +9,46 @@ import {
 } from 'vscode';
 import * as _ from './common';
 
-// ヒント位置を検索する
-export function getPositionListByWord(setting: _.UserSetting, textEditor: TextEditor): Position[] {
-    return getPositionList(setting.common.wordRegExp, textEditor);
+// 空のヒント位置リストを返す
+export function getEmptyPositionList(textEditorList: TextEditor[]): Position[][] {
+    return textEditorList.map((editor) => { return []; });
 }
 
 // ヒント位置を検索する
-export function getPositionListByLine(setting: _.UserSetting, textEditor: TextEditor): Position[] {
-    return getPositionList(setting.common.lineRegExp, textEditor);
+export function getPositionListByWord(setting: _.UserSetting, textEditorList: TextEditor[]): Position[][] {
+    return getPositionList(setting.common.wordRegExp, textEditorList);
 }
 
 // ヒント位置を検索する
-function getPositionList(regExp: RegExp, textEditor: TextEditor): Position[] {
+export function getPositionListByLine(setting: _.UserSetting, textEditorList: TextEditor[]): Position[][] {
+    return getPositionList(setting.common.lineRegExp, textEditorList);
+}
+
+// ヒント位置を検索する
+function getPositionList(regExp: RegExp, textEditorList: TextEditor[]): Position[][] {
     if (!regExp) return [];
 
-    // 範囲を取得
-    let range = getTargetRange(textEditor);
-    // 範囲内の行を走査
-    let list: Position[] = [];
-    for (let i = range.start.line; i <= range.end.line; i++) {
-        let line = textEditor.document.lineAt(i);
-        let exec: RegExpExecArray | null;
+    let list: Position[][] = [];
+    textEditorList.forEach((editor) => {
+        // 範囲を取得
+        let range = getTargetRange(editor);
 
-        // exec()は最後のマッチ位置を保持しながら検索する
-        while (!!(exec = regExp.exec(line.text))) {
-            list.push(
-                new Position(i, exec.index)
-            );
+        // 範囲内の行を走査
+        let l: Position[] = [];
+        for (let i = range.start.line; i <= range.end.line; i++) {
+            let line = editor.document.lineAt(i);
+            let exec: RegExpExecArray | null;
+
+            // exec()は最後のマッチ位置を保持しながら検索する
+            while (!!(exec = regExp.exec(line.text))) {
+                l.push(
+                    new Position(i, exec.index)
+                );
+            }
         }
-    }
+
+        list.push(l);
+    });
     return list;
 }
 
@@ -54,3 +65,4 @@ function getTargetRange(textEditor: TextEditor): Range {
         new Position(endLine, range[0].end.character),
     );
 }
+

@@ -8,19 +8,31 @@ import {
 import * as _ from './common';
 
 // ヒント文字を作成する
-export function getLabelList(setting: _.UserSetting, positionList: Position[]): string[] {
-    let count = positionList.length;
+export function getLabelList(setting: _.UserSetting, positionList: Position[][]): string[][] {
+    // 総個数
+    let count = 0;
+    positionList.forEach((l) => {
+        count += l.length;
+    });
 
     // ヒントを作成する
-    let list: string[] = [];
+    let labelList: string[] = [];
     switch (setting.type.hintLengthType) {
         case _.HintLengthType.Fixed:
-            list = generateFixedLabelList(setting.common.hintCharList, count, setting.type.fixedHintLength);
+            labelList = generateFixedLabelList(setting.common.hintCharList, count, setting.type.fixedHintLength);
             break;
         case _.HintLengthType.Variable:
-            list = generateVariableLabelList(setting.common.hintCharList, count);
+            labelList = generateVariableLabelList(setting.common.hintCharList, count);
             break;
     }
+
+    // 振り分ける
+    let list: string[][] = [];
+    positionList.forEach((l) => {
+        list.push(
+            labelList.splice(0, l.length)
+        );
+    });
     return list;
 }
 

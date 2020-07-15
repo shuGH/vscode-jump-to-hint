@@ -3,8 +3,11 @@
 // 汎用関数
 
 import {
+    TextEditor,
     workspace,
-    commands
+    commands,
+    window,
+    TextEdit
 } from 'vscode';
 import * as _ from './common';
 
@@ -17,7 +20,8 @@ export function getUserSetting(): _.UserSetting {
             wordRegExp: new RegExp(''),
             lineRegExp: new RegExp(''),
             hintCharList: [],
-            inputStyle: _.InputStyle.InputBox
+            inputStyle: _.InputStyle.InputBox,
+            targetType: _.TargetTextEditorType.VisibleTextEditors
         },
         type: {
             hintLengthType: _.HintLengthType.Variable,
@@ -38,7 +42,8 @@ export function getUserSetting(): _.UserSetting {
         hintCharList: extensionConfig.get('common.hintCharacters', '')
             .split("")
             .filter(function (e, i, self) { return self.indexOf(e) === i; }),
-        inputStyle: _.InputStyle[extensionConfig.get('common.inputStyle', 'InputBox')]
+        inputStyle: _.InputStyle[extensionConfig.get('common.inputStyle', 'InputBox')],
+        targetType: _.TargetTextEditorType[extensionConfig.get('common.targetTextEditorType', 'VisibleTextEditors')]
     }
 
     setting.type = {
@@ -60,4 +65,20 @@ export function updateState(status: _.ExtensionStatus, state: _.ExtensionState) 
     // 独自Contextの設定
     let f = (state == _.ExtensionState.NotActive) ? false : true;
     commands.executeCommand('setContext', 'jumpToHint.enabled', f);
+}
+
+// 表示先の取得
+export function getTargetTextEditorList(setting: _.UserSetting): TextEditor[] {
+    let list: TextEditor[] = [];
+    switch (setting.common.targetType) {
+        case _.TargetTextEditorType.ActiveTextEditor:
+            if (window.activeTextEditor) {
+                list.push(window.activeTextEditor);
+            }
+            break;
+        case _.TargetTextEditorType.VisibleTextEditors:
+            list = window.visibleTextEditors;
+            break;
+    }
+    return list;
 }
