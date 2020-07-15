@@ -38,7 +38,7 @@ export function getUserSetting(): _.UserSetting {
         hintCharList: extensionConfig.get('common.hintCharacters', '')
             .split("")
             .filter(function (e, i, self) { return self.indexOf(e) === i; }),
-        inputStyle: _.InputStyle[extensionConfig.get('common.inputCodeStyle', 'InputBox')]
+        inputStyle: _.InputStyle[extensionConfig.get('common.inputStyle', 'InputBox')]
     }
 
     setting.type = {

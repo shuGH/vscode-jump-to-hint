@@ -89,9 +89,9 @@
                 "jumpToHint.common.hintCharacters": {
                     "type": "string",
                     "default": "abcdefghijklmnopqrstuvwxyz[];',./",
-                    "description": "Characters used to generate hint code."
+                    "description": "Characters used to generate hint label."
                 },
-                "jumpToHint.common.inputCodeStyle": {
+                "jumpToHint.common.inputStyle": {
                     "type": "string",
                     "default": "TypeEvent",
                     "description": "Input style to select hint. `TypeEvent`: Input directly without displaying anything. `InputBox`: Show inputbox.",
@@ -103,7 +103,7 @@
                 "jumpToHint.type.hintLengthType": {
                     "type": "string",
                     "default": "Variable",
-                    "description": "Type of generated hint code length.",
+                    "description": "Type of generated hint label length.",
                     "enum": [
                         "Fixed",
                         "Variable"
@@ -112,7 +112,7 @@
                 "jumpToHint.type.fixedHintLength": {
                     "type": "number",
                     "default": 2,
-                    "description": "[Fixed type only] Length of fixed hint code, need to greater than 1."
+                    "description": "[Fixed type only] Length of fixed hint label, need to greater than 1."
                 },
                 "jumpToHint.theme.fontColor": {
                     "type": "string",

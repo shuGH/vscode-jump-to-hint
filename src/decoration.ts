@@ -15,7 +15,7 @@ import * as _ from './common';
 export function applyDecoration(status: _.ExtensionStatus): boolean {
     if (!status.targetEditor) { return false };
 
-    let list = getHintParamList(status.positionList, status.codeList, status.inputCode);
+    let list = getHintParamList(status.positionList, status.labelList, status.inputLabel);
     if (status.foregroundDecoration) {
         status.targetEditor.setDecorations(status.foregroundDecoration, getForegroundDecorationOptionList(list));
     }
@@ -27,18 +27,18 @@ export function applyDecoration(status: _.ExtensionStatus): boolean {
 }
 
 // 位置とコードを結合する
-function getHintParamList(positionList: Position[], codeList: string[], inputCode: string): _.HintParam[] {
+function getHintParamList(positionList: Position[], labelList: string[], inputLabel: string): _.HintParam[] {
     let list: _.HintParam[] = positionList.map((p, i) => {
-        if (!!codeList[i]) {
-            return { pos: p, code: codeList[i] };
+        if (!!labelList[i]) {
+            return { pos: p, label: labelList[i] };
         }
-        return { pos: p, code: '' };
+        return { pos: p, label: '' };
     });
 
     // 入力に一致するものだけ
-    let re = new RegExp('^' + inputCode + '.*', 'i');
+    let re = new RegExp('^' + inputLabel + '.*', 'i');
     return list.filter((param, i) => {
-        return (re.test(param.code));
+        return (re.test(param.label));
     });
 }
 
@@ -70,7 +70,7 @@ function getForegroundDecorationOptionList(list: _.HintParam[]): DecorationOptio
             range: new Range(param.pos.line, param.pos.character, param.pos.line, param.pos.character),
             renderOptions: {
                 after: {
-                    contentText: param.code,
+                    contentText: param.label,
                 }
             }
         }
@@ -81,7 +81,7 @@ function getForegroundDecorationOptionList(list: _.HintParam[]): DecorationOptio
 function getBackgroundDecorationOptionList(list: _.HintParam[]): DecorationOptions[] {
     return list.map((param, i) => {
         return {
-            range: new Range(param.pos.line, param.pos.character, param.pos.line, param.pos.character + param.code.length),
+            range: new Range(param.pos.line, param.pos.character, param.pos.line, param.pos.character + param.label.length),
         }
     });
 }

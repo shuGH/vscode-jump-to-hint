@@ -55,12 +55,12 @@ Configrations of extention and examples.
         * `^\s*\S+.*`
 
 * `jumpToHint.common.hintCharacters`
-    * Characters used to generate hint code. The left side character has a higher priority.
+    * Characters used to generate hint label. The left side character has a higher priority.
     * Examples:
         * `asdfghjkl;'`: Use center line key only.
         * `1234567890`: Use numeric key only.
 
-* `jumpToHint.common.inputCodeStyle`
+* `jumpToHint.common.inputStyle`
     * Input style to select hint.
     * Values:
         * `TypeEvent`: Input directly without displaying anything.
@@ -68,13 +68,13 @@ Configrations of extention and examples.
     * Notes: TypeEvent style does not work if some extension registered 'type' command already, force show a inputbox.
 
 * `jumpToHint.type.hintLengthType`
-    * Type of generated hint code length.
+    * Type of generated hint label length.
     * Values:
-        * `Fixed`: Hint code has fixed length like <text style="background-color:#FFFF66; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">aa</text> <text style="background-color:#FFFF66; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ab</text> <text style="background-color:#FFFF66; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ac</text>.
-        * `Variable`: Hint code has variable length depending on the number of hints like <text style="background-color:#FFFF66; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">a</text> <text style="background-color:#FFFF66; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">b</text> <text style="background-color:#FFFF66; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ab</text>.
+        * `Fixed`: Hint label has fixed length like <text style="background-color:#FFFF66; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">aa</text> <text style="background-color:#FFFF66; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ab</text> <text style="background-color:#FFFF66; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ac</text>.
+        * `Variable`: Hint label has variable length depending on the number of hints like <text style="background-color:#FFFF66; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">a</text> <text style="background-color:#FFFF66; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">b</text> <text style="background-color:#FFFF66; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ab</text>.
 
 * `jumpToHint.type.fixedHintLength`
-    * [Fixed type only] Length of fixed hint code, need to greater than 1.
+    * [Fixed type only] Length of fixed hint label, need to greater than 1.
     * Examples:
         * `2`: <text style="background-color:#CCFF99; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">aa</text> <text style="background-color:#CCFF99; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ab</text> <text style="background-color:#CCFF99; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ac</text>
         * `3`: <text style="background-color:#CCFF99; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">aaa</text> <text style="background-color:#CCFF99; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">aab</text> <text style="background-color:#CCFF99; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">aba</text>

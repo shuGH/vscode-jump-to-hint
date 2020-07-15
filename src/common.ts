@@ -49,18 +49,18 @@ export type UserSetting = {
     };
 }
 
-// 位置とコード
+// 位置とラベル
 export type HintParam = {
     pos: Position;
-    code: string;
+    label: string;
 }
 
 // ステータス
 export class ExtensionStatus extends Disposable {
     state: ExtensionState;
     positionList: Position[];
-    codeList: string[];
-    inputCode: string;
+    labelList: string[];
+    inputLabel: string;
     foregroundDecoration: TextEditorDecorationType | null;
     backgroundDecoration: TextEditorDecorationType | null;
     targetEditor: TextEditor | null;
@@ -72,8 +72,8 @@ export class ExtensionStatus extends Disposable {
 
         this.state = ExtensionState.NotActive;
         this.positionList = [];
-        this.codeList = [];
-        this.inputCode = '';
+        this.labelList = [];
+        this.inputLabel = '';
         this.foregroundDecoration = null;
         this.backgroundDecoration = null;
         this.targetEditor = null;
@@ -88,8 +88,8 @@ export class ExtensionStatus extends Disposable {
     finalize() {
         this.state = ExtensionState.NotActive;
         this.positionList.length = 0;
-        this.codeList.length = 0;
-        this.inputCode = '';
+        this.labelList.length = 0;
+        this.inputLabel = '';
         this.foregroundDecoration?.dispose();
         this.foregroundDecoration = null;
         this.backgroundDecoration?.dispose();

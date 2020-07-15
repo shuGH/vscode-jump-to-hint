@@ -8,7 +8,7 @@ import {
 import * as _ from './common';
 import * as util from './utility';
 import * as pos from './position';
-import * as code from './code';
+import * as label from './label';
 import * as deco from './decoration';
 import * as nav from './navigation';
 
@@ -140,7 +140,7 @@ function jumpByWord(
 
 	status.targetEditor = textEditor;
 	status.positionList = pos.getPositionListByWord(setting, status.targetEditor);
-	status.codeList = code.getCodeList(setting, status.positionList);
+	status.labelList = label.getLabelList(setting, status.positionList);
 	status.foregroundDecoration = deco.getForegroundDecoration(setting);
 	status.backgroundDecoration = deco.getBackgroundDecoration(setting);
 
@@ -156,7 +156,7 @@ function jumpByLine(
 
 	status.targetEditor = textEditor;
 	status.positionList = pos.getPositionListByLine(setting, status.targetEditor);
-	status.codeList = code.getCodeList(setting, status.positionList);
+	status.labelList = label.getLabelList(setting, status.positionList);
 	status.foregroundDecoration = deco.getForegroundDecoration(setting);
 	status.backgroundDecoration = deco.getBackgroundDecoration(setting);
 
@@ -165,25 +165,25 @@ function jumpByLine(
 
 function typeHintCharacter(status: _.ExtensionStatus, text: string) {
 	if (status.state == _.ExtensionState.NotActive) return;
-	console.log('JumpToHint: Input code.', text);
+	console.log('JumpToHint: Input character.', text);
 
-	status.inputCode = nav.getInputCode(status.inputCode, text);
+	status.inputLabel = nav.getInputLabel(status.inputLabel, text);
 	tryNavigationOrApplyDecoration(status);
 }
 
 function setHintCharacter(status: _.ExtensionStatus, text: string) {
 	if (status.state == _.ExtensionState.NotActive) return;
-	console.log('JumpToHint: Input code.', text);
+	console.log('JumpToHint: Input character.', text);
 
-	status.inputCode = text;
+	status.inputLabel = text;
 	tryNavigationOrApplyDecoration(status);
 }
 
 function tryNavigationOrApplyDecoration(status: _.ExtensionStatus): boolean {
-	let navigable = nav.canNavigate(status.codeList, status.inputCode);
+	let navigable = nav.canNavigate(status.labelList, status.inputLabel);
 
 	if (navigable) {
-		console.log('JumpToHint: Navigate to hint.', status.inputCode);
+		console.log('JumpToHint: Navigate to hint.', status.inputLabel);
 
 		nav.applyNavigation(status);
 		exit(status);
@@ -196,10 +196,10 @@ function tryNavigationOrApplyDecoration(status: _.ExtensionStatus): boolean {
 }
 
 function undo(status: _.ExtensionStatus) {
-	if (nav.canUndoInputCode(status.inputCode)) {
+	if (nav.canUndoInputLabel(status.inputLabel)) {
 		console.log('JumpToHint: Undo.');
 
-		status.inputCode = nav.getUndoneInputCode(status.inputCode);
+		status.inputLabel = nav.getUndoneInputLabel(status.inputLabel);
 		deco.applyDecoration(status);
 	}
 	else {
@@ -211,7 +211,7 @@ function exit(status: _.ExtensionStatus) {
 	console.log('JumpToHint: Exit.');
 
 	status.positionList = [];
-	status.codeList = [];
+	status.labelList = [];
 	deco.applyDecoration(status);
 
 	util.updateState(status, _.ExtensionState.NotActive);
