@@ -1,27 +1,219 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import {
+	ExtensionContext,
+	TextEditor,
+	TextEditorEdit,
+	commands,
+	window
+} from 'vscode';
+import * as _ from './common';
+import * as util from './utility';
+import * as pos from './position';
+import * as label from './label';
+import * as deco from './decoration';
+import * as nav from './navigation';
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: ExtensionContext) {
+	let status = new _.ExtensionStatus();
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "jump-to-hint" is now active!');
+	let wordCommandDisposable = commands.registerTextEditorCommand(
+		'jumpToHint.jumpByWord',
+		(textEditor: TextEditor, edit: TextEditorEdit) => {
+			const setting = util.getUserSetting();
+			jumpByWord(textEditor, edit, status, setting);
+			subscribeTypeEvent(textEditor, edit, status, setting);
+			console.log('JumpToHint: Show hints by word.', status);
+		}
+	);
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('jump-to-hint.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
+	let lineCommandDisposable = commands.registerTextEditorCommand(
+		'jumpToHint.jumpByLine',
+		(textEditor: TextEditor, edit: TextEditorEdit) => {
+			const setting = util.getUserSetting();
+			jumpByLine(textEditor, edit, status, setting);
+			subscribeTypeEvent(textEditor, edit, status, setting);
+			console.log('JumpToHint: Show hints by line.', status);
+		}
+	);
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from jump-to-hint!');
+	let undoCommandDisposable = commands.registerTextEditorCommand(
+		'jumpToHint.undo',
+		(textEditor: TextEditor, edit: TextEditorEdit) => {
+			undo(status);
+		}
+	);
+
+	let cancelCommandDisposable = commands.registerTextEditorCommand(
+		'jumpToHint.cancel',
+		(textEditor: TextEditor, edit: TextEditorEdit) => {
+			exit(status);
+		}
+	);
+
+	let onDidChangeActiveDisposable = window.onDidChangeActiveTextEditor((ev) => {
+		exit(status);
 	});
 
-	context.subscriptions.push(disposable);
+	let onDidChangeVisibleRangesDisposable = window.onDidChangeTextEditorVisibleRanges((ev) => {
+		exit(status);
+	});
+
+	context.subscriptions.push(wordCommandDisposable);
+	context.subscriptions.push(lineCommandDisposable);
+	context.subscriptions.push(undoCommandDisposable);
+	context.subscriptions.push(cancelCommandDisposable);
+	context.subscriptions.push(onDidChangeActiveDisposable);
+	context.subscriptions.push(onDidChangeVisibleRangesDisposable);
+	context.subscriptions.push(status);
 }
 
-// this method is called when your extension is deactivated
 export function deactivate() {}
+
+// タイプイベントの購読
+function subscribeTypeEvent(
+	textEditor: TextEditor, edit: TextEditorEdit, status: _.ExtensionStatus,
+	setting: _.UserSetting
+) {
+	switch (setting.common.inputStyle) {
+		case _.InputStyle.TypeEvent:
+			// 他の拡張がtypeイベントを登録していたら定義済みというエラーが出る
+			try {
+				subscribeTypeEventByCommand(status);
+			}
+			catch (error) {
+				// Other extention has registered 'type'.
+				// https://github.com/Microsoft/vscode/issues/13441
+				subscribeTypeEventByInputBox(status);
+			}
+			break;
+
+		case _.InputStyle.InputBox:
+			subscribeTypeEventByInputBox(status);
+			break;
+	}
+}
+
+function subscribeTypeEventByCommand(status: _.ExtensionStatus) {
+	let typeCommandDisposable = commands.registerTextEditorCommand(
+		'type',
+		(textEditor: TextEditor, edit: TextEditorEdit, event: { text: string }) => {
+			switch (status.state) {
+				case _.ExtensionState.NotActive:
+					// そのままVsCodeに流す
+					commands.executeCommand('default:type', event);
+					break;
+				default:
+					const setting = util.getUserSetting();
+					typeHintCharacter(status, event.text);
+					break;
+			}
+		}
+	);
+
+	status.subscriptionList.push(typeCommandDisposable);
+}
+
+function subscribeTypeEventByInputBox(status: _.ExtensionStatus) {
+	status.inputBox = window.createInputBox();
+
+	status.inputBox.prompt = '';
+	status.inputBox.placeholder = 'Jump to...';
+	status.inputBox.onDidChangeValue((text) => {
+		const setting = util.getUserSetting();
+		setHintCharacter(status, text);
+	});
+	status.inputBox.onDidAccept(() => {
+		exit(status);
+	});
+	status.inputBox.onDidHide(() => {
+		exit(status);
+	})
+
+	status.inputBox.show()
+}
+
+function jumpByWord(
+	textEditor: TextEditor, edit: TextEditorEdit, status: _.ExtensionStatus,
+	setting: _.UserSetting
+) {
+	status.initialize();
+	util.updateState(status, _.ExtensionState.ActiveLineHint);
+
+	status.targetEditor = textEditor;
+	status.positionList = pos.getPositionListByWord(setting, status.targetEditor);
+	status.labelList = label.getLabelList(setting, status.positionList);
+	status.foregroundDecoration = deco.getForegroundDecoration(setting);
+	status.backgroundDecoration = deco.getBackgroundDecoration(setting);
+
+	deco.applyDecoration(status);
+}
+
+function jumpByLine(
+	textEditor: TextEditor, edit: TextEditorEdit, status: _.ExtensionStatus,
+	setting: _.UserSetting
+) {
+	status.initialize();
+	util.updateState(status, _.ExtensionState.ActiveLineHint);
+
+	status.targetEditor = textEditor;
+	status.positionList = pos.getPositionListByLine(setting, status.targetEditor);
+	status.labelList = label.getLabelList(setting, status.positionList);
+	status.foregroundDecoration = deco.getForegroundDecoration(setting);
+	status.backgroundDecoration = deco.getBackgroundDecoration(setting);
+
+	deco.applyDecoration(status);
+}
+
+function typeHintCharacter(status: _.ExtensionStatus, text: string) {
+	if (status.state == _.ExtensionState.NotActive) return;
+	console.log('JumpToHint: Input character.', text);
+
+	status.inputLabel = nav.getInputLabel(status.inputLabel, text);
+	tryNavigationOrApplyDecoration(status);
+}
+
+function setHintCharacter(status: _.ExtensionStatus, text: string) {
+	if (status.state == _.ExtensionState.NotActive) return;
+	console.log('JumpToHint: Input character.', text);
+
+	status.inputLabel = text;
+	tryNavigationOrApplyDecoration(status);
+}
+
+function tryNavigationOrApplyDecoration(status: _.ExtensionStatus): boolean {
+	let navigable = nav.canNavigate(status.labelList, status.inputLabel);
+
+	if (navigable) {
+		console.log('JumpToHint: Navigate to hint.', status.inputLabel);
+
+		nav.applyNavigation(status);
+		exit(status);
+	}
+	else {
+		deco.applyDecoration(status);
+	}
+
+	return navigable;
+}
+
+function undo(status: _.ExtensionStatus) {
+	if (nav.canUndoInputLabel(status.inputLabel)) {
+		console.log('JumpToHint: Undo.');
+
+		status.inputLabel = nav.getUndoneInputLabel(status.inputLabel);
+		deco.applyDecoration(status);
+	}
+	else {
+		exit(status);
+	}
+}
+
+function exit(status: _.ExtensionStatus) {
+	console.log('JumpToHint: Exit.');
+
+	status.positionList = [];
+	status.labelList = [];
+	deco.applyDecoration(status);
+
+	util.updateState(status, _.ExtensionState.NotActive);
+	status.finalize();
+}
