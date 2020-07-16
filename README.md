@@ -18,6 +18,7 @@ Features:
 
 * Jump to words that match a regular expression.
 * Jump to a beginning of any lines.
+* Support multiple pane, jump to a document of anothre pane.
 * The characters to use are specified.
 * Two input styles can be selected.
 * Color of the hint label is configurable.
@@ -60,6 +61,11 @@ Configrations of extention and examples.
         * `asdfghjkl;'`: Use center line key only.
         * `1234567890`: Use numeric key only.
 
+* `jumpToHint.common.targetTextEditorType`
+    * The target to display hints when you split the pane.
+    * Values:
+        * `ActiveTextEditor`: Current focused pane only.
+        * `VisibleTextEditors`: All visibled panes. You can also move a focus to another side pnae.
 * `jumpToHint.common.inputStyle`
     * Input style to select hint.
     * Values:
@@ -70,26 +76,26 @@ Configrations of extention and examples.
 * `jumpToHint.type.hintLengthType`
     * Type of generated hint label length.
     * Values:
-        * `Fixed`: Hint label has fixed length like <text style="background-color:#FFFF66; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">aa</text> <text style="background-color:#FFFF66; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ab</text> <text style="background-color:#FFFF66; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ac</text>.
-        * `Variable`: Hint label has variable length depending on the number of hints like <text style="background-color:#FFFF66; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">a</text> <text style="background-color:#FFFF66; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">b</text> <text style="background-color:#FFFF66; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ab</text>.
+        * `Fixed`: Hint label has fixed length like [aa] [ab] [ac].
+        * `Variable`: Hint label has variable length depending on the number of hints like [a] [b] [ab].
 
 * `jumpToHint.type.fixedHintLength`
     * [Fixed type only] Length of fixed hint label, need to greater than 1.
     * Examples:
-        * `2`: <text style="background-color:#CCFF99; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">aa</text> <text style="background-color:#CCFF99; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ab</text> <text style="background-color:#CCFF99; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ac</text>
-        * `3`: <text style="background-color:#CCFF99; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">aaa</text> <text style="background-color:#CCFF99; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">aab</text> <text style="background-color:#CCFF99; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">aba</text>
+        * `2`: [aa] [ab] [ac]
+        * `3`: [aaa] [aab] [aba]
 
 * `jumpToHint.theme.fontColor`
     * Font color of hint decoration.
     * Examples:
-        * `black`: <text style="background-color:white; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ab</text>
-        * `rgb(0,0,255)`: <text style="background-color:white; color:rgb(0,0,255); fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ab</text>
+        * `black`: <span style="background-color:white; color:black; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ab</span>
+        * `rgb(0,0,255)`: <span style="background-color:white; color:rgb(0,0,255); fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ab</span>
 
 * `jumpToHint.theme.backgroundColor`
     * Background color of hint decoration.
     * Examples:
-        * `teal`: <text style="background-color:teal; color:teal; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ab</text>
-        * `#800080`: <text style="background-color:#800080; color:#800080; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ab</text>
+        * `teal`: <span style="background-color:teal; color:teal; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ab</span>
+        * `#800080`: <span style="background-color:#800080; color:#800080; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ab</span>
 
 ## Installation
 
@@ -101,7 +107,7 @@ Search extension in marketplace and Install.
 ## Roadmap
 
 * [ ] CJK Support.
-* [ ] Support multi text-editors(tabs).
+* [X] Support multiple panes.
 * [ ] Jump to hint by search command.
 
 ## Release Notes

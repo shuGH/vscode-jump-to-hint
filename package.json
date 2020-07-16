@@ -1,8 +1,8 @@
 {
-    "name": "jump-to-hint",
+    "name": "vscode-jump-to-hint",
     "displayName": "Jump to Hint",
-    "description": "Hit a key to show hints and jump to it.",
-    "version": "1.0.0",
+    "description": "Show hints and hit a key to jump to it.",
+    "version": "1.1.0",
     "publisher": "shuworks",
     "author": "Shuzo Iwasaki <shu.works.7@gmail.com>",
     "license": "MIT",
@@ -21,7 +21,7 @@
         "keybindings"
     ],
     "galleryBanner": {
-        "color": "#8c4394",
+        "color": "#2ec4cd",
         "theme": "dark"
     },
     "repository": {
@@ -88,7 +88,7 @@
                 },
                 "jumpToHint.common.hintCharacters": {
                     "type": "string",
-                    "default": "abcdefghijklmnopqrstuvwxyz[];',./",
+                    "default": "fjdkghsla;ruvmeic,tybnwox.qpz/",
                     "description": "Characters used to generate hint label."
                 },
                 "jumpToHint.common.inputStyle": {
@@ -103,7 +103,7 @@
                 "jumpToHint.common.targetTextEditorType": {
                     "type": "string",
                     "default": "VisibleTextEditors",
-                    "description": "",
+                    "description": "The target to display hints when you split the pane. `ActiveTextEditor`: Current pane only. `VisibleTextEditors`: All visibled panes.",
                     "enum": [
                         "ActiveTextEditor",
                         "VisibleTextEditors"
