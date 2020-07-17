@@ -4,7 +4,7 @@
 
 Jump to Hint is a extention package for the Visual Studio Code to move cursor by simple and visual operation.
 
-<!-- ![demo](https://raw.githubusercontent.com/shuGH/vscode-jump-to-hint/master/res/demo.gif) -->
+![demo](https://raw.githubusercontent.com/shuGH/vscode-jump-to-hint/master/res/demo.gif)
 
 ## Description
 
@@ -109,6 +109,10 @@ Search extension in marketplace and Install.
 * [ ] CJK Support.
 * [X] Support multiple panes.
 * [ ] Jump to hint by search command.
+
+## Known Issues
+
+* The width of Hint-background is affected by tab sise.
 
 ## Release Notes
 
