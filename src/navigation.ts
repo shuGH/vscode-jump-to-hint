@@ -3,24 +3,31 @@
 // 入力処理
 
 import {
-    Selection
+    Selection, window
 } from 'vscode';
 import * as _ from './common';
 
 export function applyNavigation(status: _.ExtensionStatus): boolean {
-    if (!status.targetEditor) { return false };
+    for (let i = 0; i <= status.labelList.length; i++) {
+        let list = status.labelList[i];
 
-    // 一致するもの
-    let index = status.labelList.indexOf(status.inputLabel);
-    if (index < 0) return false;
-    let pos = status.positionList[index];
-    if (!pos) return false;
+        // 一致するものがあるか
+        let index = list.indexOf(status.inputLabel);
+        if (index < 0) continue;
 
-    // フォーカス移動
-    const selection = new Selection(
-        pos.line, pos.character, pos.line, pos.character,
-    );
-    status.targetEditor.selection = selection;
+        let pos = status.positionList[i][index];
+        if (!pos) return false;
+        let target = status.targetEditorList[i];
+        if (!target) return false;
+
+        // フォーカス移動
+        const selection = new Selection(
+            pos.line, pos.character, pos.line, pos.character,
+        );
+        target.selection = selection;
+        window.showTextDocument(target.document, target.viewColumn);
+        break;
+    }
 
     return true;
 }
@@ -37,9 +44,13 @@ export function getUndoneInputLabel(inputLabel: string): string {
 }
 
 // ジャンプできるか
-export function canNavigate(labelList: string[], inputLabel: string): boolean {
+export function canNavigate(labelList: string[][], inputLabel: string): boolean {
     // 一致するものがあるか
-    return (labelList.indexOf(inputLabel) >= 0);
+    let f = false;
+    labelList.forEach((l) => {
+        f = f || (l.indexOf(inputLabel) >= 0);
+    });
+    return f;
 }
 
 // Undoできるか
