@@ -35,7 +35,8 @@
     "main": "./out/extension.js",
     "activationEvents": [
         "onCommand:jumpToHint.jumpByWord",
-        "onCommand:jumpToHint.jumpByLine"
+        "onCommand:jumpToHint.jumpByLine",
+        "onCommand:jumpToHint.jumpBySearch"
     ],
     "contributes": {
         "commands": [
@@ -46,6 +47,10 @@
             {
                 "command": "jumpToHint.jumpByLine",
                 "title": "Jump to Hint: by Line"
+            },
+            {
+                "command": "jumpToHint.jumpBySearch",
+                "title": "Jump to Hint: by Search"
             }
         ],
         "keybindings": [

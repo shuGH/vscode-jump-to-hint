@@ -11,6 +11,7 @@ import * as pos from './position';
 import * as label from './label';
 import * as deco from './decoration';
 import * as nav from './navigation';
+import { stat } from 'fs';
 
 export function activate(context: ExtensionContext) {
 	let status = new _.ExtensionStatus();
@@ -32,6 +33,16 @@ export function activate(context: ExtensionContext) {
 			jumpByLine(textEditor, edit, status, setting);
 			subscribeTypeEvent(textEditor, edit, status, setting);
 			console.log('JumpToHint: Show hints by line.', status);
+		}
+	);
+
+	let searchCommandDisposable = commands.registerTextEditorCommand(
+		'jumpToHint.jumpBySearch',
+		(textEditor: TextEditor, edit: TextEditorEdit) => {
+			const setting = util.getUserSetting();
+			jumpBySearch(textEditor, edit, status, setting);
+			subscribeTypeEvent(textEditor, edit, status, setting);
+			console.log('JumpToHint: Show hints by search.', status);
 		}
 	);
 
@@ -59,6 +70,7 @@ export function activate(context: ExtensionContext) {
 
 	context.subscriptions.push(wordCommandDisposable);
 	context.subscriptions.push(lineCommandDisposable);
+	context.subscriptions.push(searchCommandDisposable);
 	context.subscriptions.push(undoCommandDisposable);
 	context.subscriptions.push(cancelCommandDisposable);
 	context.subscriptions.push(onDidChangeActiveDisposable);
@@ -102,7 +114,6 @@ function subscribeTypeEventByCommand(status: _.ExtensionStatus) {
 					commands.executeCommand('default:type', event);
 					break;
 				default:
-					const setting = util.getUserSetting();
 					typeHintCharacter(status, event.text);
 					break;
 			}
@@ -118,7 +129,6 @@ function subscribeTypeEventByInputBox(status: _.ExtensionStatus) {
 	status.inputBox.prompt = '';
 	status.inputBox.placeholder = 'Jump to...';
 	status.inputBox.onDidChangeValue((text) => {
-		const setting = util.getUserSetting();
 		setHintCharacter(status, text);
 	});
 	status.inputBox.onDidAccept(() => {
@@ -140,7 +150,7 @@ function jumpByWord(
 
 	status.targetEditorList = util.getTargetTextEditorList(setting);
 	status.positionList = pos.getPositionListByWord(setting, status.targetEditorList);
-	status.labelList = label.getLabelList(setting, status.positionList);
+	status.labelList = label.getLabelListByPosition(setting, status.positionList);
 	status.foregroundDecorationList = deco.getForegroundDecorationList(setting, status.targetEditorList);
 	status.backgroundDecorationList = deco.getBackgroundDecorationList(setting, status.targetEditorList);
 
@@ -156,7 +166,21 @@ function jumpByLine(
 
 	status.targetEditorList = util.getTargetTextEditorList(setting);
 	status.positionList = pos.getPositionListByLine(setting, status.targetEditorList);
-	status.labelList = label.getLabelList(setting, status.positionList);
+	status.labelList = label.getLabelListByPosition(setting, status.positionList);
+	status.foregroundDecorationList = deco.getForegroundDecorationList(setting, status.targetEditorList);
+	status.backgroundDecorationList = deco.getBackgroundDecorationList(setting, status.targetEditorList);
+
+	deco.applyDecoration(status);
+}
+
+function jumpBySearch(
+	textEditor: TextEditor, edit: TextEditorEdit, status: _.ExtensionStatus,
+	setting: _.UserSetting
+) {
+	status.initialize();
+	util.updateState(status, _.ExtensionState.ActiveSearchHint);
+
+	status.targetEditorList = util.getTargetTextEditorList(setting);
 	status.foregroundDecorationList = deco.getForegroundDecorationList(setting, status.targetEditorList);
 	status.backgroundDecorationList = deco.getBackgroundDecorationList(setting, status.targetEditorList);
 
@@ -167,43 +191,133 @@ function typeHintCharacter(status: _.ExtensionStatus, text: string) {
 	if (status.state == _.ExtensionState.NotActive) return;
 	console.log('JumpToHint: Input character.', text);
 
-	status.inputLabel = nav.getInputLabel(status.inputLabel, text);
-	tryNavigationOrApplyDecoration(status);
+	status.inputLabel = nav.getInputText(status.inputLabel, text);
+	tryNavigationOrApplyDecoration(status, false);
 }
 
 function setHintCharacter(status: _.ExtensionStatus, text: string) {
 	if (status.state == _.ExtensionState.NotActive) return;
 	console.log('JumpToHint: Input character.', text);
 
-	status.inputLabel = text;
-	tryNavigationOrApplyDecoration(status);
+	switch (status.state) {
+		case _.ExtensionState.ActiveWordHint:
+			// 入力として扱う
+			status.inputLabel = text;
+			break;
+		case _.ExtensionState.ActiveLineHint:
+			// 入力として扱う
+			status.inputLabel = text;
+			break;
+		case _.ExtensionState.ActiveSearchHint:
+			// クエリと入力に分解する
+			if (text.length >= status.inputQuery.length) {
+				status.inputLabel = text.slice(status.inputQuery.length);
+			}
+			else {
+				// クエリまでUndoした場合
+				status.inputLabel = '';
+				status.inputQuery = text;
+			}
+			break;
+	}
+
+	// Undoをしてinputが''の時は表示したまま
+	tryNavigationOrApplyDecoration(status, false);
 }
 
-function tryNavigationOrApplyDecoration(status: _.ExtensionStatus): boolean {
-	let navigable = nav.canNavigate(status.labelList, status.inputLabel);
+function tryNavigationOrApplyDecoration(status: _.ExtensionStatus, isExitEnabled: boolean): boolean {
+	let capability = nav.getNavigationCapability(status.labelList, status.inputLabel);
 
-	if (navigable) {
-		console.log('JumpToHint: Navigate to hint.', status.inputLabel);
+	switch (capability) {
+		case _.NavigationCapability.CanNavigate:
+			console.log('JumpToHint: Navigate to hint.', status.inputLabel, status.inputQuery);
+			switch (status.state) {
+				case _.ExtensionState.ActiveWordHint:
+					nav.applyNavigationByPosition(status);
+					break;
+				case _.ExtensionState.ActiveLineHint:
+					nav.applyNavigationByPosition(status);
+					break;
+				case _.ExtensionState.ActiveSearchHint:
+					nav.applyNavigationByRange(status);
+					break;
+			}
+			exit(status);
+			break;
 
-		nav.applyNavigation(status);
-		exit(status);
+		case _.NavigationCapability.Narrowed:
+			console.log('JumpToHint: Update hint.', status);
+			deco.applyDecoration(status);
+			break;
+
+		case _.NavigationCapability.NotMatch:
+			switch (status.state) {
+				case _.ExtensionState.ActiveWordHint:
+					if (isExitEnabled) {
+						exit(status);
+					}
+					else {
+						deco.applyDecoration(status);
+					}
+					break;
+				case _.ExtensionState.ActiveLineHint:
+					if (isExitEnabled) {
+						exit(status);
+					}
+					else {
+						deco.applyDecoration(status);
+					}
+					break;
+				case _.ExtensionState.ActiveSearchHint:
+					const setting = util.getUserSetting();
+					// Jumpできなかったので、入力をQueryとして扱う
+					status.inputQuery = nav.getInputText(status.inputQuery, status.inputLabel);
+					status.inputLabel = '';
+					status.rangeList = pos.getRangeListBySearch(setting, status.targetEditorList, status.inputQuery);
+					status.labelList = label.getLabelListByRange(setting, status.targetEditorList, status.rangeList);
+					console.log('JumpToHint: Update query.', status);
+					deco.applyDecoration(status);
+					break;
+			}
+			break;
 	}
-	else {
-		deco.applyDecoration(status);
-	}
 
-	return navigable;
+	return (capability == _.NavigationCapability.CanNavigate);
+}
+
+function cancel(status: _.ExtensionStatus) {
+	console.log('JumpToHint: Cancel.');
+
+	status.inputLabel = '';
+	deco.applyDecoration(status);
 }
 
 function undo(status: _.ExtensionStatus) {
-	if (nav.canUndoInputLabel(status.inputLabel)) {
-		console.log('JumpToHint: Undo.');
+	console.log('JumpToHint: Undo.');
 
-		status.inputLabel = nav.getUndoneInputLabel(status.inputLabel);
+	if (status.inputLabel) {
+		// undoできなかったらexit
+		if (!nav.canUndoInputText(status.inputLabel)) {
+			exit(status);
+			return;
+		}
+
+		status.inputLabel = nav.getUndoneInputText(status.inputLabel);
 		deco.applyDecoration(status);
 	}
 	else {
-		exit(status);
+		// undoできなかったらexit
+		if (!nav.canUndoInputText(status.inputQuery)) {
+			exit(status);
+			return;
+		}
+
+		const setting = util.getUserSetting();
+		status.inputQuery = nav.getUndoneInputText(status.inputQuery);
+		status.inputLabel = '';
+		status.rangeList = pos.getRangeListBySearch(setting, status.targetEditorList, status.inputQuery);
+		status.labelList = label.getLabelListByRange(setting, status.targetEditorList, status.rangeList);
+		deco.applyDecoration(status);
 	}
 }
 

@@ -14,6 +14,19 @@ import * as _ from './common';
 
 // 装飾を適用する
 export function applyDecoration(status: _.ExtensionStatus): boolean {
+    switch (status.state) {
+        case _.ExtensionState.ActiveWordHint:
+            return applyDecorationByPosition(status);
+        case _.ExtensionState.ActiveLineHint:
+            return applyDecorationByPosition(status);
+        case _.ExtensionState.ActiveSearchHint:
+            return applyDecorationByRange(status);
+    }
+    return false;
+}
+
+// 装飾を適用する
+function applyDecorationByPosition(status: _.ExtensionStatus): boolean {
     status.targetEditorList.forEach((editor, i) => {
         let positionList = status.positionList[i];
         let labelList = status.labelList[i];
@@ -31,7 +44,35 @@ export function applyDecoration(status: _.ExtensionStatus): boolean {
             }
         }
     });
+    return true;
+}
 
+// 装飾を適用する
+function applyDecorationByRange(status: _.ExtensionStatus): boolean {
+    status.targetEditorList.forEach((editor, i) => {
+        let rangeList = status.rangeList[i];
+        let labelList = status.labelList[i];
+        let foreground = status.foregroundDecorationList[i];
+        let background = status.backgroundDecorationList[i];
+        let target = status.targetEditorList[i];
+
+        if (!!rangeList && !!labelList && !!target) {
+            // 位置に変換
+            let positionList = rangeList.map((r, i) => {
+                return r.start;
+            });
+
+            let list = getHintParamList(positionList, labelList, status.inputLabel);
+            if (foreground) {
+                target.setDecorations(foreground, getForegroundDecorationOptionList(list));
+            }
+            if (background) {
+                target.setDecorations(background, getBackgroundDecorationOptionList(list));
+            }
+
+            // @TODO: Statusに背景用のデコレーションを追加してマッチ範囲を強調表示
+        }
+    });
     return true;
 }
 
