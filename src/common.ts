@@ -61,7 +61,8 @@ export type UserSetting = {
 
     theme: {
         fontColor: string,
-        backgroundColor: string
+        backgroundColor: string,
+        highlightColor: string
     };
 }
 
@@ -81,6 +82,7 @@ export class ExtensionStatus extends Disposable {
     inputQuery: string;
     foregroundDecorationList: TextEditorDecorationType[];
     backgroundDecorationList: TextEditorDecorationType[];
+    highlightDecorationList: TextEditorDecorationType[];
     targetEditorList: TextEditor[];
     subscriptionList: Disposable[];
     inputBox: InputBox | null;
@@ -96,6 +98,7 @@ export class ExtensionStatus extends Disposable {
         this.inputQuery = '';
         this.foregroundDecorationList = [];
         this.backgroundDecorationList = [];
+        this.highlightDecorationList = [];
         this.targetEditorList = [];
         this.subscriptionList = [];
         this.inputBox = null;
@@ -117,6 +120,8 @@ export class ExtensionStatus extends Disposable {
         this.foregroundDecorationList = [];
         this.backgroundDecorationList.forEach((d) => d.dispose());
         this.backgroundDecorationList = [];
+        this.highlightDecorationList.forEach((d) => d.dispose());
+        this.highlightDecorationList = [];
 
         this.targetEditorList.length = 0;
 

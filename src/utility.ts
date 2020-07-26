@@ -29,7 +29,8 @@ export function getUserSetting(): _.UserSetting {
         },
         theme: {
             fontColor: '',
-            backgroundColor: ''
+            backgroundColor: '',
+            highlightColor: ''
         }
     };
 
@@ -53,7 +54,8 @@ export function getUserSetting(): _.UserSetting {
 
     setting.theme = {
         fontColor: extensionConfig.get('theme.fontColor', 'black'),
-        backgroundColor: extensionConfig.get('theme.backgroundColor', 'white')
+        backgroundColor: extensionConfig.get('theme.backgroundColor', 'white'),
+        highlightColor: extensionConfig.get('theme.highlightColor', 'blue')
     }
 
     return setting;

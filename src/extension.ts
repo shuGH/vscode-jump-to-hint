@@ -183,6 +183,7 @@ function jumpBySearch(
 	status.targetEditorList = util.getTargetTextEditorList(setting);
 	status.foregroundDecorationList = deco.getForegroundDecorationList(setting, status.targetEditorList);
 	status.backgroundDecorationList = deco.getBackgroundDecorationList(setting, status.targetEditorList);
+	status.highlightDecorationList = deco.getHighlightDecorationList(setting, status.targetEditorList);
 
 	deco.applyDecoration(status);
 }

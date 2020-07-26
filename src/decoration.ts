@@ -54,6 +54,7 @@ function applyDecorationByRange(status: _.ExtensionStatus): boolean {
         let labelList = status.labelList[i];
         let foreground = status.foregroundDecorationList[i];
         let background = status.backgroundDecorationList[i];
+        let highlight = status.highlightDecorationList[i];
         let target = status.targetEditorList[i];
 
         if (!!rangeList && !!labelList && !!target) {
@@ -69,8 +70,9 @@ function applyDecorationByRange(status: _.ExtensionStatus): boolean {
             if (background) {
                 target.setDecorations(background, getBackgroundDecorationOptionList(list));
             }
-
-            // @TODO: Statusに背景用のデコレーションを追加してマッチ範囲を強調表示
+            if (highlight) {
+                target.setDecorations(highlight, getHighlightDecorationOptionList(list, rangeList));
+            }
         }
     });
     return true;
@@ -121,11 +123,24 @@ export function getBackgroundDecorationList(setting: _.UserSetting, textEditorLi
     return list;
 }
 
+// 装飾タイプを作成する
+export function getHighlightDecorationList(setting: _.UserSetting, textEditorList: TextEditor[]): TextEditorDecorationType[] {
+    let list: TextEditorDecorationType[] = [];
+    textEditorList.forEach((editor) => {
+        list.push(window.createTextEditorDecorationType({
+            backgroundColor: setting.theme.highlightColor,
+            opacity: '1',
+            border: 'none',
+        }));
+    });
+    return list;
+}
+
 // 装飾オプションを作成する
 function getForegroundDecorationOptionList(list: _.HintParam[]): DecorationOptions[] {
     return list.map((param, i) => {
         return {
-            range: new Range(param.pos.line, param.pos.character, param.pos.line, param.pos.character),
+            range: new Range(param.pos, param.pos),
             renderOptions: {
                 after: {
                     contentText: param.label,
@@ -139,8 +154,33 @@ function getForegroundDecorationOptionList(list: _.HintParam[]): DecorationOptio
 function getBackgroundDecorationOptionList(list: _.HintParam[]): DecorationOptions[] {
     return list.map((param, i) => {
         return {
-            range: new Range(param.pos.line, param.pos.character, param.pos.line, param.pos.character + param.label.length),
+            range: new Range(
+                param.pos.line, param.pos.character,
+                param.pos.line, param.pos.character + param.label.length
+            )
         }
     });
 }
 
+// 装飾オプションを作成する
+function getHighlightDecorationOptionList(hintList: _.HintParam[], rangeList: Range[]): DecorationOptions[] {
+    let list: DecorationOptions[] = [];
+    for (let i = 0; i < rangeList.length; i++) {
+        let hint = hintList[i];
+        let range = rangeList[i];
+        if (!hint || !range) continue;
+
+        // ハイライトとヒントの重なり順が制御できないため、ハイライトの範囲を変える
+        // @TODO: 全角対応を入れた場合、文字列長とヒント幅が一致しないので処理を変える必要あり
+        let l = range.end.character - range.start.character;
+        if (l > hint.label.length) {
+            list.push({
+                range: new Range(
+                    range.start.line, range.start.character + hint.label.length,
+                    range.end.line, range.end.character
+                )
+            });
+        }
+    }
+    return list;
+}
