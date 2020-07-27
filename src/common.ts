@@ -5,6 +5,7 @@
 import {
     Disposable,
     Position,
+    Range,
     TextEditorDecorationType,
     TextEditor,
     InputBox
@@ -28,11 +29,19 @@ export enum TargetTextEditorType {
     VisibleTextEditors
 };
 
+// ヒントの確定度
+export enum NavigationCapability {
+    CanNavigate,
+    Narrowed,
+    NotMatch
+};
+
 // 動作ステート
 export enum ExtensionState {
     NotActive,
     ActiveWordHint,
-    ActiveLineHint
+    ActiveLineHint,
+    ActiveSearchHint
 };
 
 // 設定型
@@ -52,7 +61,8 @@ export type UserSetting = {
 
     theme: {
         fontColor: string,
-        backgroundColor: string
+        backgroundColor: string,
+        highlightColor: string
     };
 }
 
@@ -66,10 +76,13 @@ export type HintParam = {
 export class ExtensionStatus extends Disposable {
     state: ExtensionState;
     positionList: Position[][];
+    rangeList: Range[][];
     labelList: string[][];
     inputLabel: string;
+    inputQuery: string;
     foregroundDecorationList: TextEditorDecorationType[];
     backgroundDecorationList: TextEditorDecorationType[];
+    highlightDecorationList: TextEditorDecorationType[];
     targetEditorList: TextEditor[];
     subscriptionList: Disposable[];
     inputBox: InputBox | null;
@@ -79,10 +92,13 @@ export class ExtensionStatus extends Disposable {
 
         this.state = ExtensionState.NotActive;
         this.positionList = [];
+        this.rangeList = [];
         this.labelList = [];
         this.inputLabel = '';
+        this.inputQuery = '';
         this.foregroundDecorationList = [];
         this.backgroundDecorationList = [];
+        this.highlightDecorationList = [];
         this.targetEditorList = [];
         this.subscriptionList = [];
         this.inputBox = null;
@@ -95,13 +111,17 @@ export class ExtensionStatus extends Disposable {
     finalize() {
         this.state = ExtensionState.NotActive;
         this.positionList.length = 0;
+        this.rangeList.length = 0;
         this.labelList.length = 0;
         this.inputLabel = '';
+        this.inputQuery = '';
 
         this.foregroundDecorationList.forEach((d) => d.dispose());
         this.foregroundDecorationList = [];
         this.backgroundDecorationList.forEach((d) => d.dispose());
         this.backgroundDecorationList = [];
+        this.highlightDecorationList.forEach((d) => d.dispose());
+        this.highlightDecorationList = [];
 
         this.targetEditorList.length = 0;
 

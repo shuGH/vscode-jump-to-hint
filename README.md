@@ -10,7 +10,7 @@ Jump to Hint is a extention package for the Visual Studio Code to move cursor by
 
 This extension was inspired by Atom's Jumpy and Vim's EasyMotion.
 
-You can jump the cursor position to any words or line heads with a hint consisting of a few letters.
+You can jump the cursor position to any words, line heads or search results with a hint consisting of a few letters.
 By typing the hint label as it is, determine the hint to jump to.
 It is very simple and easy because type in the displayed characters.
 
@@ -18,6 +18,7 @@ Features:
 
 * Jump to words that match a regular expression.
 * Jump to a beginning of any lines.
+* Jump to results of incremental search.
 * Support multiple pane, jump to a document of anothre pane.
 * The characters to use are specified.
 * Two input styles can be selected.
@@ -38,6 +39,9 @@ Commands:
 * `Jump to Hint: by Line`
 	* Show hints at all lines and hit a key to jump to one of them.
     * Keybinding: `ctrl+alt+j l`, `cmd+alt+j l`
+* `Jump to Hint: by Search`
+	* Begin incremental search and show hints to these results. You can jump to one of them anytime during incremental search.
+    * Keybinding: `ctrl+alt+j s`, `cmd+alt+j s`
 
 ## Configrations
 
@@ -97,6 +101,12 @@ Configrations of extention and examples.
         * `teal`: <span style="background-color:teal; color:teal; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ab</span>
         * `#800080`: <span style="background-color:#800080; color:#800080; fontWeight:normal; border-radius:2px; border: none; padding:4px 0px;">ab</span>
 
+* `jumpToHint.theme.highlightColor`
+    * [Serch command only] Highlight color of matched text.
+    * Examples:
+        * `blue`: <span style="background-color:blue; color:white; fontWeight:normal; border: none; padding:4px 0px;">text</span>
+        * `#E0E0E0`: <span style="background-color:#E0E0E0; color:black; fontWeight:normal; border: none; padding:4px 0px;">text</span>
+
 ## Installation
 
 Search extension in marketplace and Install.
@@ -106,13 +116,14 @@ Search extension in marketplace and Install.
 
 ## Roadmap
 
-* [ ] CJK Support.
+* [ ] CJK partial support.
 * [X] Support multiple panes.
-* [ ] Jump to hint by search command.
+* [X] Jump to hint by search command.
 
 ## Known Issues
 
 * The width of Hint-background is affected by tab sise.
+* ヒントラベルの幅が全角文字やタブの影響を受けます。
 
 ## Release Notes
 

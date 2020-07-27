@@ -25,8 +25,13 @@ export function getPositionListByLine(setting: _.UserSetting, textEditorList: Te
 }
 
 // ヒント位置を検索する
+export function getRangeListBySearch(setting: _.UserSetting, textEditorList: TextEditor[], inputLabel: string): Range[][] {
+    return getRangeList(inputLabel, textEditorList);
+}
+
+// ヒント位置を検索する
 function getPositionList(regExp: RegExp, textEditorList: TextEditor[]): Position[][] {
-    if (!regExp) return [];
+    if (!regExp) return textEditorList.map((e, i) => { return []; });
 
     let list: Position[][] = [];
     textEditorList.forEach((editor) => {
@@ -49,6 +54,37 @@ function getPositionList(regExp: RegExp, textEditorList: TextEditor[]): Position
 
         list.push(l);
     });
+    return list;
+}
+
+// ヒント位置を検索する
+function getRangeList(inputLabel: string, textEditorList: TextEditor[]): Range[][] {
+    if (!inputLabel) return textEditorList.map((e, i) => { return []; });
+
+    let regExp = new RegExp(inputLabel, 'gi');
+
+    let list: Range[][] = [];
+    textEditorList.forEach((editor) => {
+        // 範囲を取得
+        let range = getTargetRange(editor);
+
+        // 範囲内の行を走査
+        let l: Range[] = [];
+        for (let i = range.start.line; i <= range.end.line; i++) {
+            let line = editor.document.lineAt(i);
+            let exec: RegExpExecArray | null;
+
+            // exec()は最後のマッチ位置を保持しながら検索する
+            while (!!(exec = regExp.exec(line.text))) {
+                l.push(
+                    new Range(i, exec.index, i, exec.index + inputLabel.length)
+                );
+            }
+        }
+
+        list.push(l);
+    });
+
     return list;
 }
 

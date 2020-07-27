@@ -2,7 +2,7 @@
     "name": "vscode-jump-to-hint",
     "displayName": "Jump to Hint",
     "description": "Show hints and hit a key to jump to it.",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "publisher": "shuworks",
     "author": "Shuzo Iwasaki <shu.works.7@gmail.com>",
     "license": "MIT",
@@ -13,11 +13,11 @@
         "Other"
     ],
     "keywords": [
-        "jump",
         "jumpy",
-        "AceJumper",
         "EasyMotion",
-        "FindThenJump",
+        "AceJump",
+        "jump",
+        "navigation",
         "keybindings"
     ],
     "galleryBanner": {
@@ -35,7 +35,8 @@
     "main": "./out/extension.js",
     "activationEvents": [
         "onCommand:jumpToHint.jumpByWord",
-        "onCommand:jumpToHint.jumpByLine"
+        "onCommand:jumpToHint.jumpByLine",
+        "onCommand:jumpToHint.jumpBySearch"
     ],
     "contributes": {
         "commands": [
@@ -46,6 +47,10 @@
             {
                 "command": "jumpToHint.jumpByLine",
                 "title": "Jump to Hint: by Line"
+            },
+            {
+                "command": "jumpToHint.jumpBySearch",
+                "title": "Jump to Hint: by Search"
             }
         ],
         "keybindings": [
@@ -59,6 +64,12 @@
                 "key": "ctrl+alt+j l",
                 "mac": "cmd+alt+j l",
                 "command": "jumpToHint.jumpByLine",
+                "when": "editorTextFocus"
+            },
+            {
+                "key": "ctrl+alt+j s",
+                "mac": "cmd+alt+j s",
+                "command": "jumpToHint.jumpBySearch",
                 "when": "editorTextFocus"
             },
             {
@@ -132,6 +143,11 @@
                     "type": "string",
                     "default": "white",
                     "description": "Background color of hint decoration."
+                },
+                "jumpToHint.theme.highlightColor": {
+                    "type": "string",
+                    "default": "blue",
+                    "description": "[Serch command only] highlight color of matched text."
                 }
             }
         }
