@@ -1,38 +1,167 @@
 {
-  "publisher": "antfu",
-  "name": "ext-name",
-  "displayName": "ext-name",
-  "version": "0.0.0",
-  "private": true,
-  "packageManager": "pnpm@8.1.1",
-  "description": "",
-  "author": "Anthony Fu <anthonyfu117@hotmail.com>",
+  "name": "vscode-jump-to-hint",
+  "displayName": "Jump to Hint",
+  "description": "Show hints and hit a key to jump to it.",
+  "version": "1.2.0",
+  "publisher": "shuworks",
+  "author": "Shuzo Iwasaki <shu.works.7@gmail.com>",
   "license": "MIT",
-  "funding": "https://github.com/sponsors/antfu",
-  "homepage": "https://github.com/antfu/ext-name#readme",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/antfu/ext-name"
-  },
-  "bugs": {
-    "url": "https://github.com/antfu/ext-name/issues"
-  },
-  "sponsor": {
-    "url": "https://github.com/sponsors/antfu"
+  "engines": {
+    "vscode": "^1.46.0"
   },
   "categories": [
     "Other"
   ],
+  "keywords": [
+    "jumpy",
+    "EasyMotion",
+    "AceJump",
+    "jump",
+    "navigation",
+    "keybindings"
+  ],
+  "galleryBanner": {
+    "color": "#2ec4cd",
+    "theme": "dark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shuGH/vscode-jump-to-hint.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shuGH/vscode-jump-to-hint/issues"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "jumpToHint.jumpByWord",
+        "title": "Jump to Hint: by Word"
+      },
+      {
+        "command": "jumpToHint.jumpByLine",
+        "title": "Jump to Hint: by Line"
+      },
+      {
+        "command": "jumpToHint.jumpBySearch",
+        "title": "Jump to Hint: by Search"
+      }
+    ],
+    "keybindings": [
+      {
+        "key": "ctrl+alt+j w",
+        "mac": "cmd+alt+j w",
+        "command": "jumpToHint.jumpByWord",
+        "when": "editorTextFocus"
+      },
+      {
+        "key": "ctrl+alt+j l",
+        "mac": "cmd+alt+j l",
+        "command": "jumpToHint.jumpByLine",
+        "when": "editorTextFocus"
+      },
+      {
+        "key": "ctrl+alt+j s",
+        "mac": "cmd+alt+j s",
+        "command": "jumpToHint.jumpBySearch",
+        "when": "editorTextFocus"
+      },
+      {
+        "key": "backspace",
+        "command": "jumpToHint.undo",
+        "when": "editorTextFocus && jumpToHint.enabled"
+      },
+      {
+        "key": "escape",
+        "command": "jumpToHint.cancel",
+        "when": "editorTextFocus && jumpToHint.enabled"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Jump to Hint",
+      "properties": {
+        "jumpToHint.common.wordRegExp": {
+          "type": "string",
+          "default": "([A-Z]+([a-z0-9])*)|([a-z0-9]{2,})|((?<=[てにをはがのともへでや、。\\s\\t\\n])[ぁ-んァ-ン一-龥ー]{2,}?[てにをはがのともへでや、。]*)",
+          "description": "Regular expression used to identify words in jump-by-word mode."
+        },
+        "jumpToHint.common.lineRegExp": {
+          "type": "string",
+          "default": "^\\s*\\S+.*$",
+          "description": "Regular expression used to identify lines in jump-by-line mode."
+        },
+        "jumpToHint.common.hintCharacters": {
+          "type": "string",
+          "default": "fjdkghsla;ruvmeic,tybnwox.qpz/",
+          "description": "Characters used to generate hint label."
+        },
+        "jumpToHint.common.inputStyle": {
+          "type": "string",
+          "default": "TypeEvent",
+          "description": "Input style to select hint. `TypeEvent`: Input directly without displaying anything. `InputBox`: Show inputbox.",
+          "enum": [
+            "TypeEvent",
+            "InputBox"
+          ]
+        },
+        "jumpToHint.common.targetTextEditorType": {
+          "type": "string",
+          "default": "VisibleTextEditors",
+          "description": "The target to display hints when you split the pane. `ActiveTextEditor`: Current pane only. `VisibleTextEditors`: All visibled panes.",
+          "enum": [
+            "ActiveTextEditor",
+            "VisibleTextEditors"
+          ]
+        },
+        "jumpToHint.type.hintLengthType": {
+          "type": "string",
+          "default": "Variable",
+          "description": "Type of generated hint label length.",
+          "enum": [
+            "Fixed",
+            "Variable"
+          ]
+        },
+        "jumpToHint.type.fixedHintLength": {
+          "type": "number",
+          "default": 2,
+          "description": "[Fixed type only] Length of fixed hint label, need to greater than 1."
+        }
+      }
+    },
+    "colors": [
+      {
+        "id": "jumpToHint.fontColor",
+        "description": "Font color of hint decoration.",
+        "defaults": {
+          "light": "#000000",
+          "dark": "#FFFFFF"
+        }
+      },
+      {
+        "id": "jumpToHint.backgroundColor",
+        "description": "Background color of hint decoration.",
+        "defaults": {
+          "light": "#FFFFFF",
+          "dark": "#000000"
+        }
+      },
+      {
+        "id": "jumpToHint.highlightColor",
+        "description": "Highlight color of matched text. (Search command only)",
+        "defaults": {
+          "light": "#0000FF",
+          "dark": "#0000FF"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "packageManager": "pnpm@8.1.1",
   "main": "./dist/index.js",
-  "icon": "res/icon.png",
+  "icon": "res/icon_128.png",
   "files": [
     "dist"
-  ],
-  "engines": {
-    "vscode": "^1.69.0"
-  },
-  "activationEvents": [
-    "onStartupFinished"
   ],
   "scripts": {
     "build": "tsup src/index.ts --external vscode",
@@ -49,7 +178,7 @@
     "@antfu/eslint-config": "^0.38.4",
     "@antfu/ni": "^0.21.2",
     "@types/node": "^18.15.11",
-    "@types/vscode": "^1.77.0",
+    "@types/vscode": "^1.46.0",
     "bumpp": "^9.1.0",
     "eslint": "^8.37.0",
     "esno": "^0.16.3",
